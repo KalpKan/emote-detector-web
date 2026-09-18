@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Flex, yawn or give a thumbs-up to your webcam and the matching Clash Royale emote pops up with its sound. Face, hand and pose landmarks run entirely in your browser."
+    />
+    <meta name="theme-color" content="#120b1f" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Emote Detector</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="masthead">
+        <p class="eyebrow">Computer vision, in the browser</p>
+        <h1>Emote Detector</h1>
+        <p class="lede">
+          Give your camera a thumbs-up, flex beside your head, or yawn, and the matching Clash Royale emote pops up
+          with its sound. MediaPipe's face, hand and pose landmarkers run on your device; no video ever leaves it.
+        </p>
+      </header>
+
+      <section class="stage-wrap" aria-labelledby="stage-heading">
+        <h2 id="stage-heading" class="visually-hidden">Camera</h2>
+        <div id="stage" class="stage">
+          <video id="video" playsinline muted autoplay></video>
+          <canvas id="overlay" width="640" height="480" aria-hidden="true"></canvas>
+          <div id="placeholder" class="placeholder">
+            <p>Your camera shows here. Nothing is recorded or uploaded.</p>
+          </div>
+          <div id="demo-caption" class="demo-caption hidden" aria-live="polite"></div>
+          <div id="emote" class="emote hidden" aria-live="assertive">
+            <img id="emote-img" alt="" width="200" height="200" />
+            <span id="emote-name"></span>
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button id="start-camera" class="button primary" type="button">Start camera</button>
+          <button id="start-demo" class="button" type="button">Play demo</button>
+          <button id="stop" class="button" type="button" disabled>Stop</button>
+        </div>
+        <p id="status" class="status" aria-live="polite">Press “Start camera” (about 40 MB of models load once) or “Play demo”.</p>
+      </section>
+
+      <section class="meters" aria-labelledby="meters-heading">
+        <h2 id="meters-heading">The three gestures</h2>
+        <ul class="meter-list">
+          <li>
+            <div class="meter-head">
+              <img src="/emotes/thumbs_up.png" alt="" width="40" height="40" loading="lazy" />
+              <div>
+                <strong>Thumbs Up</strong>
+                <span class="hint">Fingers folded, thumb straight up.</span>
+              </div>
+              <span id="val-thumbs_up" class="value">0%</span>
+            </div>
+            <div class="bar"><div id="bar-thumbs_up" class="fill"></div></div>
+          </li>
+          <li>
+            <div class="meter-head">
+              <img src="/emotes/goblin_muscle.png" alt="" width="40" height="40" loading="lazy" />
+              <div>
+                <strong>Goblin Muscle</strong>
+                <span class="hint">Flex: bend one arm, fist up beside your head.</span>
+              </div>
+              <span id="val-flex" class="value">0%</span>
+            </div>
+            <div class="bar"><div id="bar-flex" class="fill"></div></div>
+          </li>
+          <li>
+            <div class="meter-head">
+              <img src="/emotes/princess_yawn.png" alt="" width="40" height="40" loading="lazy" />
+              <div>
+                <strong>Princess Yawn</strong>
+                <span class="hint">A big yawn: mouth wide, eyes narrowed.</span>
+              </div>
+              <span id="val-yawn" class="value">0%</span>
+            </div>
+            <div class="bar"><div id="bar-yawn" class="fill"></div></div>
+          </li>
+        </ul>
+        <p class="note">Hold a pose for about three frames (a tenth of a second). Emotes wait two seconds between plays.</p>
+      </section>
+
+      <section class="how" aria-labelledby="how-heading">
+        <h2 id="how-heading">How it works</h2>
+        <ol>
+          <li>Each video frame goes through three MediaPipe models on your device: 478 face points, 21 points per hand, 33 body points.</li>
+          <li>Three hand-written rules turn those points into scores: elbow angle plus wrist height and wrist-to-head distance for the flex; thumb direction plus folded fingers for the thumbs-up; mouth height relative to width plus eyelid gap for the yawn.</li>
+          <li>A score above 0.5 for three frames in a row switches a gesture on; three frames below switches it off. The strongest active gesture fires its emote, with a two-second cooldown.</li>
+        </ol>
+        <p>
+          The rules are a line-for-line port of the original Python app
+          (<a href="https://github.com/KalpKan/emote-detector-web">source and details</a>). There is no trained classifier in this
+          page: the original's six-class MobileNetV2 reached 68 % validation accuracy, so it stayed out.
+        </p>
+      </section>
+
+      <footer class="footer">
+        <p>
+          Clash Royale emote art and sounds are © Supercell, used under
+          <a href="https://supercell.com/en/fan-content-policy/" rel="noopener">Supercell's Fan Content Policy</a>.
+          This site is not affiliated with, endorsed, sponsored, or specifically approved by Supercell and Supercell is not
+          responsible for it. Non-commercial; no ads.
+        </p>
+        <p>
+          Built by <a href="https://kalpkan.com">Kalp Kansara</a> ·
+          <a href="https://github.com/KalpKan/emote-detector-web">Code on GitHub</a> · Anonymous, cookieless visit counts only.
+        </p>
+      </footer>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
