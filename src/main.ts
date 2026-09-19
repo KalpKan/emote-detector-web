@@ -3,8 +3,9 @@ import { DemoSource } from "./demo";
 import { drawOverlay } from "./draw";
 import { COOLDOWN_MS, EMOTES, EmoteGate, type Emote } from "./emotes";
 import { faceMetrics } from "./gestures/face";
-import { GESTURES, GestureEngine, type Gesture } from "./gestures/engine";
+import { GESTURES, GestureEngine, type FrameResult, type Gesture } from "./gestures/engine";
 import type { Pt } from "./gestures/geometry";
+import { hintText, stageAspect } from "./hints";
 import { loadLandmarkers, type Landmarkers } from "./landmarkers";
 
 const $ = <T extends HTMLElement>(id: string): T => {
@@ -21,17 +22,19 @@ const status = $<HTMLParagraphElement>("status");
 const startCameraBtn = $<HTMLButtonElement>("start-camera");
 const startDemoBtn = $<HTMLButtonElement>("start-demo");
 const stopBtn = $<HTMLButtonElement>("stop");
+const muteBtn = $<HTMLButtonElement>("mute");
 const emoteBox = $<HTMLDivElement>("emote");
 const emoteImg = $<HTMLImageElement>("emote-img");
 const emoteName = $<HTMLSpanElement>("emote-name");
 const demoCaption = $<HTMLDivElement>("demo-caption");
 const ctx = canvas.getContext("2d")!;
 
-const meters: Record<Gesture, { bar: HTMLDivElement; value: HTMLSpanElement }> = {
-  flex: { bar: $("bar-flex"), value: $("val-flex") },
-  thumbs_up: { bar: $("bar-thumbs_up"), value: $("val-thumbs_up") },
-  yawn: { bar: $("bar-yawn"), value: $("val-yawn") },
+const meters: Record<Gesture, { bar: HTMLDivElement; value: HTMLSpanElement; hint: HTMLSpanElement; idle: string }> = {
+  flex: { bar: $("bar-flex"), value: $("val-flex"), hint: $("hint-flex"), idle: "" },
+  thumbs_up: { bar: $("bar-thumbs_up"), value: $("val-thumbs_up"), hint: $("hint-thumbs_up"), idle: "" },
+  yawn: { bar: $("bar-yawn"), value: $("val-yawn"), hint: $("hint-yawn"), idle: "" },
 };
+for (const g of GESTURES) meters[g].idle = meters[g].hint.textContent ?? "";
 
 type Source = { kind: "camera"; stream: MediaStream } | { kind: "demo"; demo: DemoSource; frameIndex: number };
 
@@ -45,13 +48,36 @@ const engine = new GestureEngine();
 const gate = new EmoteGate(COOLDOWN_MS);
 const sounds = new Map<Emote["id"], HTMLAudioElement>();
 let emoteTimer = 0;
+let muted = false;
+/** The hint currently shown (gesture + cue) and when it may next change, so it does not flicker. */
+let shownHint: { gesture: Gesture; cue: string } | null = null;
+let hintUntil = 0;
+const HINT_HOLD_MS = 900;
+const WATCHING = "Watching. Try a thumbs-up, a flex beside your head, or a big yawn.";
 
 const DEMO_W = 640;
 const DEMO_H = 480;
 const MIN_FRAME_MS = 40; // ~25 fps cap keeps phones cool
 
 function setStatus(text: string): void {
-  status.textContent = text;
+  if (status.textContent !== text) status.textContent = text;
+}
+
+const MUTE_KEY = "emotes.muted";
+function setMuted(next: boolean): void {
+  muted = next;
+  muteBtn.textContent = muted ? "Unmute" : "Mute";
+  muteBtn.setAttribute("aria-pressed", String(muted));
+  try {
+    localStorage.setItem(MUTE_KEY, muted ? "1" : "0");
+  } catch {
+    /* private mode or blocked storage: the choice just does not persist */
+  }
+}
+try {
+  setMuted(localStorage.getItem(MUTE_KEY) === "1");
+} catch {
+  setMuted(false);
 }
 
 /** Audio must be created inside a user gesture (iOS Safari), so this runs from the click handlers. */
@@ -74,7 +100,7 @@ function showEmote(emote: Emote): void {
   void emoteBox.offsetWidth; // restart the animation
   emoteBox.classList.add("pop");
   const a = sounds.get(emote.id);
-  if (a) {
+  if (a && !muted) {
     a.currentTime = 0;
     a.play().catch(() => {
       /* autoplay blocked: the image still shows */
@@ -88,23 +114,55 @@ function showEmote(emote: Emote): void {
 function updateMeters(scores: Record<Gesture, number>, active: Gesture | null): void {
   for (const g of GESTURES) {
     const pct = Math.round(scores[g] * 100);
-    meters[g].bar.style.width = `${pct}%`;
+    meters[g].bar.style.transform = `scaleX(${scores[g].toFixed(3)})`;
     meters[g].value.textContent = `${pct}%`;
     meters[g].bar.parentElement!.classList.toggle("active", active === g);
   }
 }
 
-function handleResult(input: { pose: Pt[] | null; hands: Pt[][]; face: Pt[] | null }, aspect: number, figure: boolean): void {
-  const result = engine.update({
-    pose: input.pose,
-    hands: input.hands,
-    face: faceMetrics(input.face, aspect),
-  });
+/**
+ * S7: under the meter of the gesture that is almost there, say which cue is missing; the
+ * status line repeats it. A hint stays for HINT_HOLD_MS so landmark jitter cannot make it flicker.
+ */
+function updateHint(result: FrameResult, now: number): void {
+  const next = result.active ? null : result.hint;
+  if (now < hintUntil && shownHint && next && next.gesture === shownHint.gesture) return;
+  if (now < hintUntil && shownHint && !next) return;
+  const same = (next === null && shownHint === null) || (next !== null && shownHint !== null && next.gesture === shownHint.gesture && next.cue === shownHint.cue);
+  if (same) return;
+  shownHint = next ? { gesture: next.gesture, cue: next.cue } : null;
+  hintUntil = now + HINT_HOLD_MS;
+  for (const g of GESTURES) {
+    const li = meters[g].hint.closest("li");
+    if (shownHint && shownHint.gesture === g) {
+      meters[g].hint.textContent = `Almost: ${hintText(g, shownHint.cue)}`;
+      li?.classList.add("almost");
+    } else {
+      meters[g].hint.textContent = meters[g].idle;
+      li?.classList.remove("almost");
+    }
+  }
+  if (source?.kind === "camera") {
+    setStatus(shownHint ? `Almost a ${EMOTES.find((e) => e.gesture === shownHint!.gesture)!.name}: ${hintText(shownHint.gesture, shownHint.cue)}` : WATCHING);
+  }
+}
+
+function handleResult(input: { pose: Pt[] | null; hands: Pt[][]; face: Pt[] | null }, aspect: number, figure: boolean, now: number): void {
+  const result = engine.update(
+    {
+      pose: input.pose,
+      hands: input.hands,
+      face: faceMetrics(input.face, aspect),
+      aspect,
+    },
+    now,
+  );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawOverlay(ctx, { pose: input.pose, hands: input.hands, face: input.face, figure });
   updateMeters(result.scores, result.active);
+  updateHint(result, now);
   if (result.fired) {
-    const emote = gate.tryFire(result.fired, performance.now());
+    const emote = gate.tryFire(result.fired, now);
     if (emote) showEmote(emote);
   }
 }
@@ -117,13 +175,15 @@ function cameraTick(now: number): void {
   if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+    // D6: the stage takes the stream's own shape, so a portrait phone stream is shown whole.
+    stage.style.aspectRatio = stageAspect(video.videoWidth, video.videoHeight);
   }
   // MediaPipe VIDEO mode needs strictly increasing timestamps.
   lastTs = Math.max(lastTs + 1, Math.round(now));
   const pose = landmarkers.pose.detectForVideo(video, lastTs).landmarks[0] ?? null;
   const hands = landmarkers.hands.detectForVideo(video, lastTs).landmarks;
   const face = landmarkers.face.detectForVideo(video, lastTs).faceLandmarks[0] ?? null;
-  handleResult({ pose, hands, face }, video.videoWidth / video.videoHeight, false);
+  handleResult({ pose, hands, face }, video.videoWidth / video.videoHeight, false, now);
 }
 
 /**
@@ -135,7 +195,7 @@ function demoTick(): void {
   source.frameIndex += 1;
   const frame = source.demo.frame(source.frameIndex * (MIN_FRAME_MS / 1000));
   demoCaption.textContent = frame.label;
-  handleResult({ pose: frame.pose, hands: frame.hands, face: frame.face }, DEMO_W / DEMO_H, true);
+  handleResult({ pose: frame.pose, hands: frame.hands, face: frame.face }, DEMO_W / DEMO_H, true, source.frameIndex * MIN_FRAME_MS);
   demoTimer = window.setTimeout(demoTick, MIN_FRAME_MS);
 }
 
@@ -171,7 +231,7 @@ async function startCamera(): Promise<void> {
     engine.reset();
     source = { kind: "camera", stream };
     lastTick = 0;
-    setStatus("Watching. Try a thumbs-up, a flex beside your head, or a big yawn.");
+    setStatus(WATCHING);
     capture("session_started", { source: "camera" });
     rafId = requestAnimationFrame(cameraTick);
   } catch (err) {
@@ -194,6 +254,7 @@ async function startDemo(): Promise<void> {
   try {
     canvas.width = DEMO_W;
     canvas.height = DEMO_H;
+    stage.style.aspectRatio = stageAspect(DEMO_W, DEMO_H);
     engine.reset();
     source = { kind: "demo", demo: new DemoSource(), frameIndex: 0 };
     lastTick = 0;
@@ -218,6 +279,13 @@ function stop(): void {
   source = null;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   updateMeters({ flex: 0, thumbs_up: 0, yawn: 0 }, null);
+  shownHint = null;
+  hintUntil = 0;
+  for (const g of GESTURES) {
+    meters[g].hint.textContent = meters[g].idle;
+    meters[g].hint.closest("li")?.classList.remove("almost");
+  }
+  stage.style.aspectRatio = stageAspect(0, 0);
   emoteBox.classList.add("hidden");
   setRunning(false, null);
   setStatus("Stopped.");
@@ -226,6 +294,7 @@ function stop(): void {
 startCameraBtn.addEventListener("click", () => void startCamera());
 startDemoBtn.addEventListener("click", () => void startDemo());
 stopBtn.addEventListener("click", stop);
+muteBtn.addEventListener("click", () => setMuted(!muted));
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && source?.kind === "camera") stop();
 });

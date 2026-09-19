@@ -33,7 +33,8 @@ try {
   await page.setViewport({ width: Number(process.env.WIDTH ?? 1000), height: 1400 });
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
-  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+  // MediaPipe's WASM prints TFLite's INFO / warning lines through console.error; only real errors count (D8).
+  page.on("console", (m) => { if (m.type() === "error" && !/^(INFO:|[WI]\d{4} )/.test(m.text())) errors.push(m.text()); });
   await page.goto(url, { waitUntil: "networkidle0" });
   // Record every time the emote box appears, with the page clock, from inside the page.
   await page.evaluate(() => {
@@ -59,7 +60,7 @@ try {
   const raw = await page.evaluate(() => window.__fires);
   // Exactly one loop is judged: a fire seen after D ms belongs to the next pass of the clip.
   const fires = raw
-    .map((f) => ({ name: f.name, ms: Math.round((f.at - streamAt) % D), sinceStart: Math.round(f.at - t0) }))
+    .map((f) => ({ name: f.name, ms: Math.round((f.at - streamAt) % D), sinceStart: Math.round(f.at - t0), pass: Math.floor((f.at - streamAt) / D) }))
     .filter((f) => f.sinceStart < D);
   const phase = Math.round((t0 - streamAt) % D);
   console.log(`clip ${labels.file} (${D} ms), url ${url}; models ready ${Math.round(t0 - streamAt)} ms after the stream started (clip position ${phase} ms)`);
@@ -76,10 +77,14 @@ try {
     else {
       const f = left.splice(i, 1)[0];
       if (f.ms - ev.startMs > WINDOW) problems.push(`${ev.gesture} late: ${f.ms - ev.startMs} ms after onset`);
+      // The one-loop window can reach the same event again on the clip's next pass when the models became
+      // ready mid-clip (D9): a second fire for the same event in a LATER pass is that pass's fire, not a
+      // re-fire; one in the SAME pass is a genuine re-fire while held.
+      for (let j = left.length - 1; j >= 0; j--) if (inEvent(left[j], ev) && left[j].pass !== f.pass) left.splice(j, 1);
     }
   }
   for (const f of left) problems.push(`false trigger: ${f.name} at ${f.ms} ms`);
-  if (errors.length) console.log(`console errors: ${errors.join(" | ")}`);
+  if (errors.length) problems.push(`console errors: ${errors.join(" | ")}`);
   console.log(problems.length ? `FAIL: ${problems.join("; ")}` : "PASS: every gesture fired once within 1 s, nothing else fired");
   process.exitCode = problems.length ? 1 : 0;
 } finally {

@@ -32,11 +32,11 @@ export function poseNeutral(): Pt[] {
   return p;
 }
 
-/** Left arm bent to ~70 degrees with the fist raised beside the head. */
+/** Left arm bent to ~70 degrees, elbow out at shoulder height, fist raised beside the head. */
 export function poseFlex(): Pt[] {
   const p = poseNeutral();
-  p[POSE.LEFT_ELBOW] = pt(0.75, 0.42);
-  p[POSE.LEFT_WRIST] = pt(0.62, 0.22);
+  p[POSE.LEFT_ELBOW] = pt(0.8, 0.45);
+  p[POSE.LEFT_WRIST] = pt(0.72, 0.22);
   return p;
 }
 
@@ -101,25 +101,39 @@ export function face(options: { mouthOpen?: number; eyesOpen?: number } = {}): P
   f[234] = pt(0.3, 0.3);
   f[454] = pt(0.7, 0.3);
   // Mouth.
-  f[FACE.MOUTH_LEFT] = pt(0.42, 0.42);
-  f[FACE.MOUTH_RIGHT] = pt(0.58, 0.42);
+  f[FACE.MOUTH_LEFT] = pt(0.43, 0.42);
+  f[FACE.MOUTH_RIGHT] = pt(0.57, 0.42);
   f[FACE.UPPER_LIP] = pt(0.5, 0.42 - mouthOpen / 2);
   f[FACE.LOWER_LIP] = pt(0.5, 0.42 + mouthOpen / 2);
+  for (const [top, bottom, x] of [[82, 87, 0.48], [312, 317, 0.52], [81, 178, 0.46], [311, 402, 0.54]] as const) {
+    f[top] = pt(x, 0.42 - mouthOpen / 2);
+    f[bottom] = pt(x, 0.42 + mouthOpen / 2);
+  }
+  // Brows 0.06 above the upper lids (0.15 of the 0.4 face height: relaxed, as in a yawn).
+  for (const [brow, x] of [[105, 0.42], [66, 0.43], [334, 0.58], [296, 0.57]] as const) f[brow] = pt(x, 0.185 - eyesOpen / 2);
   // Eyes (0.08 wide).
   f[FACE.LEFT_EYE_OUTER] = pt(0.38, 0.245);
   f[FACE.LEFT_EYE_INNER] = pt(0.46, 0.245);
   f[FACE.LEFT_EYE_TOP] = pt(0.42, 0.245 - eyesOpen / 2);
   f[FACE.LEFT_EYE_BOTTOM] = pt(0.42, 0.245 + eyesOpen / 2);
+  for (const [top, bottom, x] of [[161, 163, 0.4], [160, 144, 0.41], [158, 153, 0.43], [157, 154, 0.44]] as const) {
+    f[top] = pt(x, 0.245 - eyesOpen / 2);
+    f[bottom] = pt(x, 0.245 + eyesOpen / 2);
+  }
   f[FACE.RIGHT_EYE_OUTER] = pt(0.62, 0.245);
   f[FACE.RIGHT_EYE_INNER] = pt(0.54, 0.245);
   f[FACE.RIGHT_EYE_TOP] = pt(0.58, 0.245 - eyesOpen / 2);
   f[FACE.RIGHT_EYE_BOTTOM] = pt(0.58, 0.245 + eyesOpen / 2);
+  for (const [top, bottom, x] of [[388, 390, 0.6], [387, 373, 0.59], [385, 380, 0.57], [384, 381, 0.56]] as const) {
+    f[top] = pt(x, 0.245 - eyesOpen / 2);
+    f[bottom] = pt(x, 0.245 + eyesOpen / 2);
+  }
   return f;
 }
 
-/** Wide yawn: tall mouth, narrowed eyes. */
+/** Wide yawn: tall mouth, eyes nearly shut. */
 export function faceYawn(): Pt[] {
-  return face({ mouthOpen: 0.12, eyesOpen: 0.01 });
+  return face({ mouthOpen: 0.12, eyesOpen: 0.004 });
 }
 
 /** Mouth wide open but eyes wide open too (talking / surprised): not a yawn. */

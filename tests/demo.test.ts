@@ -20,7 +20,7 @@ describe("demo replay end to end", () => {
     for (let i = 1; i <= frames; i++) {
       const t = i * step;
       const f = demo.frame(t);
-      const r = engine.update({ pose: f.pose, hands: f.hands, face: faceMetrics(f.face, 640 / 480) });
+      const r = engine.update({ pose: f.pose, hands: f.hands, face: faceMetrics(f.face, 640 / 480), aspect: 640 / 480 }, t * 1000);
       if (r.fired) {
         const e = gate.tryFire(r.fired, t * 1000);
         if (e) fired.push(e.id);
@@ -38,7 +38,7 @@ describe("demo replay end to end", () => {
     let count = 0;
     for (let i = 1; i <= frames; i++) {
       const f = demo.frame(i * step);
-      const r = engine.update({ pose: f.pose, hands: f.hands, face: faceMetrics(f.face, 640 / 480) });
+      const r = engine.update({ pose: f.pose, hands: f.hands, face: faceMetrics(f.face, 640 / 480), aspect: 640 / 480 }, i * step * 1000);
       if (r.fired && gate.tryFire(r.fired, i * step * 1000)) count++;
     }
     expect(count).toBe(6);

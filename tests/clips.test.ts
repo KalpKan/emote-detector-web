@@ -24,13 +24,26 @@ describe("ground-truth clips (25 fps landmark sequences)", () => {
     const c = clips.find((x) => x.id === "sequence-three")!;
     const h = (frames: unknown) => createHash("sha256").update(JSON.stringify(frames)).digest("hex");
     expect(h(synthesizeClip(c, stills))).toBe(h(synthesizeClip(c, stills)));
-    expect(clips.length).toBe(58);
+    expect(clips.length).toBe(70);
   });
 
   describe("each clear gesture fires its emote exactly once, within 1 s", () => {
     for (const x of judged.filter((x) => x.clip.kind === "positive")) {
       it(x.clip.id, { timeout: T }, () => {
         expect(x.j.problems, `fires: ${x.fires}. ${x.clip.note}`).toEqual([]);
+      });
+    }
+  });
+
+  describe("a gesture held for ten seconds fires exactly once, at 25, 12 and 8 fps (D4)", () => {
+    const holds = judged.filter((x) => x.clip.id.startsWith("hold-"));
+    it("covers the three gestures at three frame rates", { timeout: T }, () => {
+      expect(holds.length).toBe(12);
+    });
+    for (const x of holds) {
+      it(x.clip.id, { timeout: T }, () => {
+        expect(x.j.problems, `fires: ${x.fires}. ${x.clip.note}`).toEqual([]);
+        expect(x.j.matched.length + x.j.unmatched.length, `fires: ${x.fires}`).toBe(1);
       });
     }
   });

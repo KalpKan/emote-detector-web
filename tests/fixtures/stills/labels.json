@@ -77,8 +77,8 @@
   "note": "thumb up beside the head, elbow bent (looks like a raised arm to the flex rule)"
  },
  "thumbs_up-05": {
-  "kind": "ok",
-  "note": ""
+  "kind": "partial",
+  "note": "the hand fills the left half of the frame out of focus with the wrist cut off; the hand model returns a 21-point set only 5 % of the frame wide (thumb tip 12 hand-lengths above the wrist), so the gesture is not visible to the landmarker; relabelled ok -> partial in FIX round 1"
  },
  "thumbs_up-06": {
   "kind": "ok",
@@ -177,8 +177,8 @@
   "note": "clear yawn"
  },
  "yawn-13": {
-  "kind": "ok",
-  "note": "yawn, hand below the mouth, mouth visible"
+  "kind": "occluded",
+  "note": "hand across the left half of the mouth (the photo shows the fingers over the lips, head tilted back): the face mesh reads the inner-lip gap as 0.22 of the mouth width, so the yawn is not visible to the landmarker; relabelled ok -> occluded in FIX round 1"
  },
  "yawn-14": {
   "kind": "occluded",

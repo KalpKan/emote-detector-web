@@ -18,9 +18,11 @@ const m = metrics(gated);
 describe("photo corpus (95 real MediaPipe landmark sets)", () => {
   it("loads every labelled still", { timeout: T }, () => {
     expect(stills.length).toBe(94);
-    expect(rows.filter((r) => r.kind === "ok").length).toBe(42);
+    expect(rows.filter((r) => r.kind === "ok").length).toBe(37); // 13 flex + 16 thumbs_up + 8 yawn (labels.json)
     expect(rows.filter((r) => r.kind === "neutral").length).toBe(9);
     expect(rows.filter((r) => r.kind === "hard").length).toBe(33);
+    expect(rows.filter((r) => r.kind === "occluded").length).toBe(9);
+    expect(rows.filter((r) => r.kind === "partial").length).toBe(6);
   });
 
   for (const g of GESTURES) {

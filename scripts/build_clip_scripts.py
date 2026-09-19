@@ -86,7 +86,8 @@ for s in index["stills"]:
         clip("single-" + s["id"], segs, events, [g], "partial", s["note"])
 
 # 2. Repeats: the same gesture three times with rests (hysteresis must not swallow repeats).
-for g, sid in (("flex", "flex-02"), ("thumbs_up", "thumbs_up-05"), ("yawn", "yawn-12")):
+# thumbs_up-14 replaced thumbs_up-05 in FIX round 1: -05 was relabelled partial (garbage hand landmarks).
+for g, sid in (("flex", "flex-02"), ("thumbs_up", "thumbs_up-14"), ("yawn", "yawn-12")):
     segs = [hold("angry-04", 1200, 0)]
     events = []
     t = 1200
@@ -97,6 +98,16 @@ for g, sid in (("flex", "flex-02"), ("thumbs_up", "thumbs_up-05"), ("yawn", "yaw
         segs.append(hold("angry-04", 1500))
         t += 1500
     clip("repeat-" + g, segs, events, [g, g, g], "positive", "three holds of the same gesture, 1.2 s rests")
+
+# 2b. Holds (FIX round 1, D4): one gesture held for 10 s must fire exactly once, at a laptop's
+# 25 fps and at a phone's 12 and 8 fps, with the corpus jitter and with twice the jitter.
+for g, sid, jitter in (("thumbs_up", "thumbs_up-07", JITTER), ("flex", "flex-14", JITTER), ("yawn", "yawn-12", JITTER), ("yawn", "yawn-19", 2 * JITTER)):
+    for fps in (25, 12, 8):
+        segs = [hold("angry-04", 1500, 0), hold(sid, 10000), hold("angry-04", 1500)]
+        events = [{"gesture": g, "startMs": 1500 + TRANSITION, "endMs": 11500}]
+        clip(f"hold-{sid}-{fps}fps" + ("-jitter2" if jitter != JITTER else ""), segs, events, [g], "positive",
+             f"{sid} held for 10 s at {fps} fps, jitter {jitter}: fires once, never re-fires while held",
+             {"fps": fps, "jitter": jitter})
 
 # 3. Sequence: thumbs-up -> flex -> yawn in one take.
 segs = [hold("angry-08", 1000, 0)]

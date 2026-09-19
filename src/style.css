@@ -73,7 +73,11 @@ h2 {
 .stage {
   position: relative;
   width: 100%;
+  /* The page sets the real value from the stream (a portrait phone gives 480 / 640); 4:3 until then. */
   aspect-ratio: 4 / 3;
+  max-height: 70vh;
+  margin-inline: auto;
+  container-type: size;
   background: var(--bg-stage);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -86,7 +90,7 @@ h2 {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .stage.camera video,
@@ -102,13 +106,6 @@ h2 {
   display: block;
 }
 
-.stage canvas {
-  object-fit: contain;
-}
-
-.stage.camera canvas {
-  object-fit: cover;
-}
 
 .placeholder {
   position: absolute;
@@ -152,7 +149,8 @@ h2 {
 }
 
 .emote img {
-  width: clamp(96px, 30vw, 200px);
+  /* Never more than ~40 % of the stage's height, so a portrait stage keeps its face visible. */
+  width: min(clamp(96px, 30vw, 200px), 36cqh);
   height: auto;
 }
 
@@ -268,10 +266,20 @@ h2 {
 
 .fill {
   height: 100%;
-  width: 0;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
   border-radius: 999px;
   background: var(--cyan);
-  transition: width 0.12s linear;
+  transition: transform 0.12s linear;
+}
+
+.meter-list li.almost {
+  border-color: var(--pink);
+}
+
+.meter-list li.almost .hint {
+  color: var(--pink);
 }
 
 .bar.active .fill {

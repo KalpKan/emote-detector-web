@@ -697,7 +697,7 @@
   },
   {
    "id": "single-thumbs_up-05",
-   "kind": "positive",
+   "kind": "partial",
    "fps": 25,
    "jitter": 0.004,
    "seed": 20,
@@ -729,7 +729,7 @@
    "expectFires": [
     "thumbs_up"
    ],
-   "note": ""
+   "note": "the hand fills the left half of the frame out of focus with the wrist cut off; the hand model returns a 21-point set only 5 % of the frame wide (thumb tip 12 hand-lengths above the wrist), so the gesture is not visible to the landmarker; relabelled ok -> partial in FIX round 1"
   },
   {
    "id": "single-thumbs_up-06",
@@ -1564,7 +1564,7 @@
   },
   {
    "id": "single-yawn-13",
-   "kind": "positive",
+   "kind": "occluded",
    "fps": 25,
    "jitter": 0.004,
    "seed": 44,
@@ -1593,10 +1593,11 @@
      "endMs": 3500
     }
    ],
-   "expectFires": [
+   "expectFires": [],
+   "note": "hand across the left half of the mouth (the photo shows the fingers over the lips, head tilted back): the face mesh reads the inner-lip gap as 0.22 of the mouth width, so the yawn is not visible to the landmarker; relabelled ok -> occluded in FIX round 1 (a yawn fire is also accepted; any other emote is a false trigger)",
+   "acceptFires": [
     "yawn"
-   ],
-   "note": "yawn, hand below the mouth, mouth visible"
+   ]
   },
   {
    "id": "single-yawn-14",
@@ -1965,7 +1966,7 @@
    "fps": 25,
    "jitter": 0.004,
    "seed": 54,
-   "aspect": 1.57143,
+   "aspect": 1.52901,
    "segments": [
     {
      "still": "angry-04",
@@ -1973,7 +1974,7 @@
      "transitionMs": 0
     },
     {
-     "still": "thumbs_up-05",
+     "still": "thumbs_up-14",
      "ms": 1500,
      "transitionMs": 300
     },
@@ -1983,7 +1984,7 @@
      "transitionMs": 300
     },
     {
-     "still": "thumbs_up-05",
+     "still": "thumbs_up-14",
      "ms": 1500,
      "transitionMs": 300
     },
@@ -1993,7 +1994,7 @@
      "transitionMs": 300
     },
     {
-     "still": "thumbs_up-05",
+     "still": "thumbs_up-14",
      "ms": 1500,
      "transitionMs": 300
     },
@@ -2096,11 +2097,443 @@
    "note": "three holds of the same gesture, 1.2 s rests"
   },
   {
-   "id": "sequence-three",
+   "id": "hold-thumbs_up-07-25fps",
    "kind": "positive",
    "fps": 25,
    "jitter": 0.004,
    "seed": 56,
+   "aspect": 1.76897,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-07",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": "thumbs_up-07 held for 10 s at 25 fps, jitter 0.004: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-thumbs_up-07-12fps",
+   "kind": "positive",
+   "fps": 12,
+   "jitter": 0.004,
+   "seed": 57,
+   "aspect": 1.76897,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-07",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": "thumbs_up-07 held for 10 s at 12 fps, jitter 0.004: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-thumbs_up-07-8fps",
+   "kind": "positive",
+   "fps": 8,
+   "jitter": 0.004,
+   "seed": 58,
+   "aspect": 1.76897,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-07",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": "thumbs_up-07 held for 10 s at 8 fps, jitter 0.004: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-flex-14-25fps",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 59,
+   "aspect": 1.58044,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-14",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "flex-14 held for 10 s at 25 fps, jitter 0.004: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-flex-14-12fps",
+   "kind": "positive",
+   "fps": 12,
+   "jitter": 0.004,
+   "seed": 60,
+   "aspect": 1.58044,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-14",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "flex-14 held for 10 s at 12 fps, jitter 0.004: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-flex-14-8fps",
+   "kind": "positive",
+   "fps": 8,
+   "jitter": 0.004,
+   "seed": 61,
+   "aspect": 1.58044,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-14",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "flex-14 held for 10 s at 8 fps, jitter 0.004: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-yawn-12-25fps",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 62,
+   "aspect": 1.89686,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-12",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn-12 held for 10 s at 25 fps, jitter 0.004: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-yawn-12-12fps",
+   "kind": "positive",
+   "fps": 12,
+   "jitter": 0.004,
+   "seed": 63,
+   "aspect": 1.89686,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-12",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn-12 held for 10 s at 12 fps, jitter 0.004: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-yawn-12-8fps",
+   "kind": "positive",
+   "fps": 8,
+   "jitter": 0.004,
+   "seed": 64,
+   "aspect": 1.89686,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-12",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn-12 held for 10 s at 8 fps, jitter 0.004: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-yawn-19-25fps-jitter2",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.008,
+   "seed": 65,
+   "aspect": 1.65979,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-19",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn-19 held for 10 s at 25 fps, jitter 0.008: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-yawn-19-12fps-jitter2",
+   "kind": "positive",
+   "fps": 12,
+   "jitter": 0.008,
+   "seed": 66,
+   "aspect": 1.65979,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-19",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn-19 held for 10 s at 12 fps, jitter 0.008: fires once, never re-fires while held"
+  },
+  {
+   "id": "hold-yawn-19-8fps-jitter2",
+   "kind": "positive",
+   "fps": 8,
+   "jitter": 0.008,
+   "seed": 67,
+   "aspect": 1.65979,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-19",
+     "ms": 10000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 11500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn-19 held for 10 s at 8 fps, jitter 0.008: fires once, never re-fires while held"
+  },
+  {
+   "id": "sequence-three",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 68,
    "aspect": 1.76897,
    "segments": [
     {
@@ -2168,7 +2601,7 @@
    "kind": "neutral",
    "fps": 25,
    "jitter": 0.004,
-   "seed": 57,
+   "seed": 69,
    "aspect": 1.5,
    "segments": [
     {
@@ -2284,7 +2717,7 @@
    "kind": "hard",
    "fps": 25,
    "jitter": 0.004,
-   "seed": 58,
+   "seed": 70,
    "aspect": 1.5,
    "segments": [
     {

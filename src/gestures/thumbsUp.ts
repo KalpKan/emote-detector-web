@@ -1,82 +1,109 @@
 /**
- * Thumbs-up rules, ported from the Python app.
+ * Thumbs-up rule.
  *
- * `scoreThumbStrict` is `PoseGestureRecognizer._score_thumb_direction(direction="up")`:
- * thumb tip well above the wrist, roughly on the wrist's vertical, thumb pointing
- * up, and all four fingers folded (tips below their PIP joints). Every cue must be
- * confident (>= 0.65, folded >= 0.6) or the hand scores 0.
+ * Rewritten in FIX round 1 (docs/reports/emotes.md D1). The Python port's
+ * "fingers folded" cue wanted every fingertip 0.02-0.14 of the FRAME below its
+ * PIP joint; in a real fist the tips sit level with the knuckles, so the strict
+ * rule scored 0 on every real photo and only the loose rule ever fired. Every
+ * cue is now measured relative to the hand's own size (wrist to middle knuckle),
+ * so it is independent of distance from the camera and of the frame's aspect:
  *
- * `scoreThumbLoose` is `BehaviorAnalyzer._score_thumbs_up`: the cheaper hand-only
- * check (thumb above wrist and index knuckle, more vertical than horizontal).
- * The engine keeps the loose score only when it is >= 0.6, as the Python app did.
+ *   folded   the four fingers curl: the angle at each PIP joint (knuckle-PIP-tip)
+ *            is small, or the tip is closer to the wrist than the PIP is
+ *   up       thumb tip well above the wrist
+ *   upright  thumb points up (within ~35 degrees of vertical)
+ *   clear    thumb tip above the folded fingertips and the hand not over the face
+ *
+ * The score is the weakest cue, so an open palm (folded = 0), a fist with the
+ * thumb tucked (up = 0) or a hand over the mouth (clear = 0) all score nothing.
  */
-import { clamp, normalise, type Pt } from "./geometry";
+import type { FaceMetrics } from "./face";
+import { angle, dist, insideBox, normalise, scaled, type Pt } from "./geometry";
 
 /** MediaPipe hand landmark indices (21-point model). */
 export const HAND = {
   WRIST: 0,
+  THUMB_MCP: 2,
   THUMB_IP: 3,
   THUMB_TIP: 4,
   INDEX_MCP: 5,
   INDEX_PIP: 6,
   INDEX_TIP: 8,
+  MIDDLE_MCP: 9,
   MIDDLE_PIP: 10,
   MIDDLE_TIP: 12,
+  RING_MCP: 13,
   RING_PIP: 14,
   RING_TIP: 16,
+  PINKY_MCP: 17,
   PINKY_PIP: 18,
   PINKY_TIP: 20,
 } as const;
 
-function scoreOneHandStrict(hand: readonly Pt[]): number {
-  if (hand.length < 21) return 0;
-  const wrist = hand[HAND.WRIST];
-  const thumbTip = hand[HAND.THUMB_TIP];
-  const thumbIp = hand[HAND.THUMB_IP];
+export type ThumbCues = { folded: number; up: number; upright: number; clear: number };
+export type ThumbScore = { score: number; cues: ThumbCues };
+export type ThumbContext = { aspect?: number; face?: FaceMetrics | null };
 
-  const verticalDelta = wrist.y - thumbTip.y;
-  const verticalScore = normalise(verticalDelta, 0.09, 0.25);
+const ZERO: ThumbCues = { folded: 0, up: 0, upright: 0, clear: 0 };
+const FINGERS: Array<[number, number, number]> = [
+  [HAND.INDEX_MCP, HAND.INDEX_PIP, HAND.INDEX_TIP],
+  [HAND.MIDDLE_MCP, HAND.MIDDLE_PIP, HAND.MIDDLE_TIP],
+  [HAND.RING_MCP, HAND.RING_PIP, HAND.RING_TIP],
+  [HAND.PINKY_MCP, HAND.PINKY_PIP, HAND.PINKY_TIP],
+];
 
-  const thumbAlignment = verticalDelta - Math.abs(thumbTip.x - wrist.x);
-  const alignmentScore = normalise(thumbAlignment, 0.02, 0.25);
+function scoreOneHand(hand: readonly Pt[], ctx: ThumbContext): ThumbScore {
+  const none: ThumbScore = { score: 0, cues: { ...ZERO } };
+  if (hand.length < 21) return none;
+  const H = scaled(hand, ctx.aspect ?? 1);
+  const wrist = H[HAND.WRIST];
+  const size = dist(wrist, H[HAND.MIDDLE_MCP]);
+  if (size < 1e-3) return none;
 
-  const folds: Array<[number, number]> = [
-    [HAND.INDEX_TIP, HAND.INDEX_PIP],
-    [HAND.MIDDLE_TIP, HAND.MIDDLE_PIP],
-    [HAND.RING_TIP, HAND.RING_PIP],
-    [HAND.PINKY_TIP, HAND.PINKY_PIP],
-  ];
-  const foldedScore = Math.min(...folds.map(([tip, pip]) => normalise(hand[tip].y - hand[pip].y, 0.02, 0.14)));
-
-  const thumbDirection = Math.atan2(thumbTip.y - thumbIp.y, thumbTip.x - thumbIp.x);
-  const orientationOffset = Math.abs(thumbDirection + Math.PI / 2);
-  const orientationScore = normalise(Math.PI / 2 - orientationOffset, 0.25, Math.PI / 2);
-
-  const components = Math.min(verticalScore, alignmentScore, orientationScore);
-  if (components < 0.65 || foldedScore < 0.6) return 0;
-  return clamp(Math.min(components, foldedScore), 0, 1);
-}
-
-function scoreOneHandLoose(hand: readonly Pt[]): number {
-  if (hand.length < 21) return 0;
-  const wrist = hand[HAND.WRIST];
-  const thumbTip = hand[HAND.THUMB_TIP];
-  const indexMcp = hand[HAND.INDEX_MCP];
-  const dy = thumbTip.y - wrist.y;
-  const dx = thumbTip.x - wrist.x;
-  const verticality = Math.abs(dy) - Math.abs(dx);
-  if (thumbTip.y < wrist.y - 0.05 && thumbTip.y < indexMcp.y - 0.03 && verticality > 0.05) {
-    return Math.min(1, (verticality - 0.05) * 6 + 0.5);
+  // Curl per finger: angle at the PIP under 70 degrees is folded, over 120 is straight;
+  // or the tip has come back to the wrist (tip closer than the PIP by a margin).
+  let folded = 1;
+  for (const [mcp, pip, tip] of FINGERS) {
+    const a = angle(H[mcp], H[pip], H[tip]);
+    const byAngle = a === null ? 0 : 1 - normalise(a, 70, 120);
+    const byReach = 1 - normalise(dist(wrist, H[tip]) / Math.max(dist(wrist, H[pip]), 1e-5), 0.85, 1.15);
+    folded = Math.min(folded, Math.max(byAngle, byReach));
   }
-  return 0;
+
+  const thumbTip = H[HAND.THUMB_TIP];
+  const up = normalise((wrist.y - thumbTip.y) / size, 0.6, 1.1);
+
+  const thumbMcp = H[HAND.THUMB_MCP];
+  const dir = (Math.atan2(-(thumbTip.y - thumbMcp.y), thumbTip.x - thumbMcp.x) * 180) / Math.PI; // 90 = straight up
+  const upright = 1 - normalise(Math.abs(dir - 90), 35, 60);
+
+  const highestTip = Math.min(...FINGERS.map(([, , tip]) => H[tip].y));
+  let clear = normalise((highestTip - thumbTip.y) / size, 0.2, 0.5);
+  if (ctx.face) {
+    const a = ctx.aspect ?? 1;
+    const box = { x0: ctx.face.box.x0 * a, x1: ctx.face.box.x1 * a, y0: ctx.face.box.y0, y1: ctx.face.box.y1 };
+    if (insideBox(H[HAND.MIDDLE_MCP], box) || insideBox(wrist, box)) clear = 0;
+  }
+
+  const cues = { folded, up, upright, clear };
+  return { score: Math.min(folded, up, upright, clear), cues };
 }
 
-export function scoreThumbStrict(hands: readonly (readonly Pt[])[] | null | undefined): number {
-  if (!hands || hands.length === 0) return 0;
-  return Math.max(0, ...hands.map(scoreOneHandStrict));
+/** Thumbs-up score for the best hand with its cue breakdown; 0 without hands. */
+export function scoreThumbsUpDetailed(hands: readonly (readonly Pt[])[] | null | undefined, ctx: ThumbContext = {}): ThumbScore {
+  let best: ThumbScore = { score: 0, cues: { ...ZERO } };
+  let bestSum = -1;
+  for (const hand of hands ?? []) {
+    const r = scoreOneHand(hand, ctx);
+    const sum = r.cues.folded + r.cues.up + r.cues.upright + r.cues.clear;
+    if (r.score > best.score || (r.score === best.score && sum > bestSum)) {
+      best = r;
+      bestSum = sum;
+    }
+  }
+  return best;
 }
 
-export function scoreThumbLoose(hands: readonly (readonly Pt[])[] | null | undefined): number {
-  if (!hands || hands.length === 0) return 0;
-  return Math.max(0, ...hands.map(scoreOneHandLoose));
+export function scoreThumbsUp(hands: readonly (readonly Pt[])[] | null | undefined, ctx: ThumbContext = {}): number {
+  return scoreThumbsUpDetailed(hands, ctx).score;
 }

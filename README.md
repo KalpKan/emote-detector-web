@@ -8,17 +8,17 @@ This is a browser port of a Python desktop app (OpenCV + MediaPipe Solutions + p
 
 ## What it detects (exactly three things)
 
-| You do | Emote | Rule (ported line for line from the Python app) |
+| You do | Emote | Rule (rewritten in FIX round 1 against the photo corpus; every cue is 0–1 and the score is the weakest cue) |
 |---|---|---|
-| **Thumbs up**: fingers folded, thumb straight up | Thumbs Up | Thumb tip well above the wrist and on its vertical, thumb pointing up, all four fingertips below their middle knuckles (`src/gestures/thumbsUp.ts`, from `_score_thumb_direction` and `_score_thumbs_up`) |
-| **Flex**: one arm bent, fist up beside your head | Goblin Muscle | Elbow angle near 60°, wrist above the shoulder, wrist close to the nose or eyes, blended 0.45 / 0.35 / 0.2 (`src/gestures/flex.ts`, from `_score_arm_flex`) |
-| **Yawn**: mouth wide open, eyes narrowed | Princess Yawn | Inner-lip gap more than 0.55 of the mouth width and more than 0.2 of the face height, with the eyelid gap under 0.25 of the eye width (`src/gestures/face.ts`, from `_extract_face_metrics` and `_score_yawn`) |
+| **Thumbs up**: fingers folded, thumb straight up | Thumbs Up | Cues, all relative to the hand's own size so distance from the camera does not matter: `folded` (the four fingers curl at the middle knuckle, or the tip has come back to the wrist), `up` (thumb tip well above the wrist), `upright` (thumb within ~35° of vertical), `clear` (thumb above the folded fingertips; a hand over the face scores nothing) (`src/gestures/thumbsUp.ts`) |
+| **Flex**: one arm bent, fist up beside your head | Goblin Muscle | Cues in shoulder widths: `bend` (elbow 35–80°), `height` (fist well above the shoulder), `beside` (fist outside the shoulder line, beside the head rather than in front of the face), `level` (elbow at about shoulder height), `clear` (fist away from the nose and outside the face box). "Outside" is measured away from the other shoulder, so a mirrored or turned body works (`src/gestures/flex.ts`) |
+| **Yawn**: mouth wide open, eyes closed | Princess Yawn | Cues: `mouth` (mean inner-lip gap 0.28–0.55 of the mouth width), `eyes` (eye aspect ratio from five lid pairs per eye, shut under 0.06, open over 0.14), `brows` (brow-to-lid distance over the face height: a yawn relaxes the brows, a scream knits them). Every gap is a signed projection on the face's own forehead→chin axis, so a tilted or sideways face measures the same and landmark jitter averages out (`src/gestures/face.ts`) |
 
-Each rule gives a 0–1 score per frame. A score of 0.5 or more for three frames in a row switches the gesture on; three frames below switches it off (`src/gestures/engine.ts`, the Python app's dwell / cool-down state machine). A strong yawn suppresses the other two, and a raised arm cancels a thumbs-up, as in the original. The strongest active gesture fires its emote, then nothing fires for two seconds.
+Each rule gives a 0–1 score per frame. The engine (`src/gestures/engine.ts`) is timed in milliseconds, not frames: a score of 0.5 or more that holds for 0.15 s (0.4 s for a yawn, because talking is short and a yawn is not) switches the gesture on, and it switches off only once the score has been under 0.35 for half a second longer than it has been over 0.5. So a gesture held for ten seconds fires once, a jittery frame changes nothing, and a phone at 8 frames per second behaves like a laptop at 25. A strong yawn suppresses the other two; when a flex and a thumbs-up are both above the line the flex wins unless the thumbs-up is clearly stronger. The strongest active gesture fires its emote, then nothing fires for two seconds. While nothing is active, the engine also reports the weakest cue of the gesture that is closest, and the page writes it under that gesture's meter ("Almost: fold the other four fingers into a fist").
 
 **What it does not do, honestly.** The Python project also trained a six-class MobileNetV2 image classifier (angry, cover-eyes, dab, flex, thumbs-up, yawn). After five epochs on 19 validation images it reached 68 % validation accuracy, so the Python app only ever enabled the three gestures above through the heuristics, and this page does not ship the classifier at all. There is no emotion recognition, no dab, no cover-eyes. Detection is a set of geometric rules, so lighting, camera angle and how far you stand from the camera all matter; the on-page meters show the live score for each gesture so you can see what the rules are seeing.
 
-One deliberate fix over the Python code: a gesture that disappears from the frame entirely now counts as a miss, so it cannot re-trigger later without holding the pose again.
+A gesture that disappears from the frame entirely counts as a miss, so it cannot re-trigger later without holding the pose again.
 
 ## How it works
 
@@ -34,7 +34,7 @@ The size trade-off: self-hosting the WASM runtime and three models costs about 4
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-npm run test:unit    # vitest: 33 fixture tests for the rules, the state machine, the cooldown and the demo replay
+npm run test:unit    # vitest: 56 fixture tests for the rules, the state machine, the hints, the cooldown and the demo replay
 npm run test:corpus  # the consumer-grade detection gate on real landmarks (see below)
 npm test             # both
 npm run report       # precision / recall per gesture, false triggers per minute, fire latency
@@ -45,13 +45,15 @@ npm run build        # tsc + vite build -> dist/
 
 The unit tests prove the port; they do not prove detection. That is measured on real MediaPipe landmarks (`tests/fixtures/`, extracted with the same `.task` models this site ships):
 
-- **95 labelled photos** (`tests/fixtures/stills/*.json`, landmarks only, never the photos): 15 flexes, 17 thumbs-ups, 21 yawns, and 42 negatives (angry faces, covering the eyes, dabbing). `labels.json` says which are clear positives, which are yawns behind a hand, which are people at rest, which are hard negatives.
-- **58 ground-truth clips** (`tests/fixtures/clips/clips.json`): scripts that hold those stills for a few seconds with transitions and jitter, synthesised to 25 fps frames by `tests/corpus.ts`; a neutral minute and a hard-negative minute among them. Each clip says which emote must fire and when.
+- **95 labelled photos** (`tests/fixtures/stills/*.json`, landmarks only, never the photos): 15 flexes, 17 thumbs-ups, 21 yawns, and 42 negatives (angry faces, covering the eyes, dabbing). `labels.json` says which are clear positives (37: 13 flexes, 16 thumbs-ups, 8 yawns), which are yawns behind a hand (9), which the landmarkers cannot see at all (6, including one thumbs-up whose out-of-focus hand gives the hand model a garbage result), which are people at rest (9), which are hard negatives (33).
+- **70 ground-truth clips** (`tests/fixtures/clips/clips.json`): scripts that hold those stills for a few seconds with transitions and jitter, synthesised to frames by `tests/corpus.ts`; among them a neutral minute, a hard-negative minute, three-in-a-row repeats, and twelve 10-second holds at 25, 12 and 8 fps (one gesture held that long must fire exactly once). Each clip says which emote must fire and when.
 - **A real-video check** (`scripts/e2e-camera.mjs`): headless Chrome with its fake camera fed by a slideshow of the photos (`python3 scripts/build_e2e_clip.py`, needs the photo folder, output git-ignored), judged against `tests/fixtures/clips/e2e-labels.json`.
 
-The bar (`tests/stills.test.ts`, `tests/clips.test.ts`): per gesture at least 90 % of the clear photos score it and at least 90 % of what scores it is that gesture; every positive clip fires its one emote within 1 s of the pose being reached; a minute of sitting, talking and looking around fires nothing; a minute of covering the eyes, dabbing and screaming fires at most once. The spec with the full table is `docs/reports/emotes-spec.md` in the `KalpKan/portfolio` repo.
+The bar (`tests/stills.test.ts`, `tests/clips.test.ts`): per gesture at least 90 % of the clear photos score it and at least 90 % of what scores it is that gesture; every positive clip fires its one emote within 1 s of the pose being reached, with per-gesture emote precision ≥ 95 % and recall ≥ 90 % over the clip set; a minute of sitting, talking and looking around fires nothing; a minute of covering the eyes, dabbing and screaming fires at most once. The spec with the full table is `docs/reports/emotes-spec.md` in the `KalpKan/portfolio` repo.
 
-**Numbers today (before the hardening rounds; `npm run report`):** photos: flex precision 35 % / recall 100 %, thumbs-up 88 % / 41 %, yawn 63 % / 56 %; clips: 36 of 58 pass, 2 false thumbs-ups in the neutral minute, 12 emotes in the hard-negative minute. So the gate is red and the rules are being reworked; this paragraph is updated with each round.
+**Numbers today (FIX round 1, 2026-09-19; `npm run report`):** photos: flex precision 100 % / recall 100 %, thumbs-up 100 % / 100 %, yawn 100 % / 100 %; 0 of 9 rest photos and 0 of 33 hard negatives score anything; no occluded or unseen photo scores a wrong gesture. Clips: 70 of 70 pass; per-gesture emote precision and recall 100 %; the neutral minute fires nothing and the hard-negative minute fires nothing; fire latency median 160 ms, p95 450 ms, max 960 ms (a 10-second hold of the smallest yawn face at twice the corpus jitter, 12 fps). Through the real pipeline (headless Chrome, fake camera, the site's own landmarkers, Mac GPU) the official clip fires Thumbs Up, Goblin Muscle and Princess Yawn once each, 240–480 ms after onset at widths 1000 and 390, and the round-1 "hard negatives" clip fires nothing. Baseline before this round, for the record: flex precision 35 %, thumbs-up recall 41 %, yawn recall 56 %, 36 of 58 clips, 12 emotes in the hard-negative minute.
+
+Two labels changed this round, each re-checked against its photo: `yawn-13` is now `occluded` (the hand covers the left half of the mouth; the mesh reads the mouth as nearly closed) and `thumbs_up-05` is now `partial` (the hand fills the frame out of focus with the wrist cut off, and the hand model returns a 21-point set only 5 % of the frame wide). The repeat clip for thumbs-up therefore uses `thumbs_up-14`.
 
 Environment variables are listed in `.env.example` (names only). Without `VITE_PUBLIC_POSTHOG_KEY` analytics is simply off.
 

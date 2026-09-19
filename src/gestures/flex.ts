@@ -1,13 +1,24 @@
 /**
- * Flex ("Goblin Muscle") rule, ported from the Python app
- * (src/body/pose_gesture_recognizer.py `_score_flex` / `_score_arm_flex`).
+ * Flex ("Goblin Muscle") rule.
  *
- * A flex is an arm bent to about 60 degrees at the elbow, with the wrist
- * raised above the shoulder and close to the head. Each of the three cues
- * becomes a 0..1 score and they are blended 0.45 / 0.35 / 0.2; a strong
- * bend plus a clearly raised wrist is enough on its own.
+ * Rewritten in FIX round 1 (docs/reports/emotes.md D2): the Python port scored
+ * elbow angle + wrist height + wrist-near-head, which any hand on the face
+ * satisfies (cover-eyes, a dab, a thumb beside the cheek). A flex is now five
+ * cues, every one measured in shoulder widths so it is distance-independent,
+ * and the score is the WEAKEST cue, so a missing cue cannot be compensated by
+ * the others:
+ *
+ *   bend    elbow angle in the 35-80 degree band (a curled bicep)
+ *   height  wrist well above the shoulder
+ *   beside  wrist OUTSIDE the shoulder line (beside the head, not in front of the face)
+ *   level   elbow raised to about shoulder height (not hanging, not overhead)
+ *   clear   wrist away from the face (not touching the nose / eyes / face box)
+ *
+ * "Outside" is measured away from the other shoulder, so it works whichever way
+ * the person faces and whether or not the video is mirrored.
  */
-import { angle, clamp, dist, normalise, type Pt } from "./geometry";
+import type { FaceMetrics } from "./face";
+import { angle, dist, insideBox, normalise, scaled, type Pt } from "./geometry";
 
 /** MediaPipe pose landmark indices (33-point model). */
 export const POSE = {
@@ -22,48 +33,70 @@ export const POSE = {
   RIGHT_WRIST: 16,
 } as const;
 
-export function scoreArmFlex(
-  pose: readonly Pt[],
-  shoulderIdx: number,
-  elbowIdx: number,
-  wristIdx: number,
-  headPoints: readonly Pt[],
-): number {
-  const shoulder = pose[shoulderIdx];
-  const elbow = pose[elbowIdx];
-  const wrist = pose[wristIdx];
-  if (!shoulder || !elbow || !wrist) return 0;
+export type FlexCues = { bend: number; height: number; beside: number; level: number; clear: number };
+export type FlexScore = { score: number; cues: FlexCues; arm: "left" | "right" | null };
+export type FlexContext = { aspect?: number; face?: FaceMetrics | null };
+
+const ZERO: FlexCues = { bend: 0, height: 0, beside: 0, level: 0, clear: 0 };
+
+function scoreArm(P: readonly Pt[], side: "left" | "right", ctx: FlexContext): FlexScore {
+  const [si, ei, wi, oi] =
+    side === "left"
+      ? [POSE.LEFT_SHOULDER, POSE.LEFT_ELBOW, POSE.LEFT_WRIST, POSE.RIGHT_SHOULDER]
+      : [POSE.RIGHT_SHOULDER, POSE.RIGHT_ELBOW, POSE.RIGHT_WRIST, POSE.LEFT_SHOULDER];
+  const shoulder = P[si];
+  const elbow = P[ei];
+  const wrist = P[wi];
+  const other = P[oi];
+  const none: FlexScore = { score: 0, cues: { ...ZERO }, arm: side };
+  if (!shoulder || !elbow || !wrist || !other) return none;
+  const shW = dist(shoulder, other);
+  if (shW < 1e-3) return none;
 
   const elbowAngle = angle(shoulder, elbow, wrist);
-  if (elbowAngle === null) return 0;
+  if (elbowAngle === null) return none;
+  // Full marks between 35 and 80 degrees, fading out by 20 and 110.
+  const bend = Math.min(normalise(elbowAngle, 20, 35), 1 - normalise(elbowAngle, 80, 110));
 
-  // Strong bend towards 60 degrees gives the highest confidence.
-  const angleScore = normalise(120 - Math.abs(elbowAngle - 60), 20, 80);
+  // Wrist above the shoulder by 0.2..0.4 shoulder widths (y grows downwards).
+  const height = normalise((shoulder.y - wrist.y) / shW, 0.2, 0.4);
 
-  // Wrist raised above the shoulder (y grows downwards).
-  const heightScore = normalise(shoulder.y - wrist.y, 0.05, 0.28);
+  // Wrist outside the shoulder line: away from the other shoulder by 0.08..0.25 shoulder widths.
+  const outward = Math.sign(shoulder.x - other.x) || 1;
+  const beside = normalise(((wrist.x - shoulder.x) * outward) / shW, 0.08, 0.25);
 
-  // Wrist close to the head (nose / eyes): small distance => strong score.
-  let headScore = 0;
-  if (headPoints.length > 0) {
-    const closest = Math.min(...headPoints.map((p) => dist(wrist, p)));
-    headScore = normalise(0.28 - closest, 0.05, 0.28);
+  // Elbow at about shoulder height: between 0.45 below and 0.35 above, fading at the edges.
+  const elbowUp = (shoulder.y - elbow.y) / shW;
+  const level = Math.min(normalise(elbowUp, -0.5, -0.35), 1 - normalise(elbowUp, 0.25, 0.4));
+
+  // Wrist clear of the face: at least 0.35..0.5 shoulder widths from the nose and outside the face box.
+  const head = [P[POSE.NOSE], P[POSE.LEFT_EYE], P[POSE.RIGHT_EYE]].filter((p): p is Pt => p !== undefined);
+  let clear = head.length ? normalise(Math.min(...head.map((h) => dist(wrist, h))) / shW, 0.35, 0.5) : 1;
+  if (ctx.face) {
+    const a = ctx.aspect ?? 1;
+    const box = { x0: ctx.face.box.x0 * a, x1: ctx.face.box.x1 * a, y0: ctx.face.box.y0, y1: ctx.face.box.y1 };
+    if (insideBox(wrist, box, 0.1)) clear = 0;
   }
 
-  let combined = 0.45 * angleScore + 0.35 * heightScore + 0.2 * headScore;
-  if (angleScore > 0.8 && heightScore > 0.6) {
-    combined = Math.max(combined, Math.min(angleScore, heightScore));
+  const cues = { bend, height, beside, level, clear };
+  return { score: Math.min(bend, height, beside, level, clear), cues, arm: side };
+}
+
+/** Flex score for the better arm with the cue breakdown; 0 when the pose is missing. */
+export function scoreFlexDetailed(pose: readonly Pt[] | null | undefined, ctx: FlexContext = {}): FlexScore {
+  if (!pose || pose.length < 17) return { score: 0, cues: { ...ZERO }, arm: null };
+  const P = scaled(pose, ctx.aspect ?? 1);
+  const left = scoreArm(P, "left", ctx);
+  const right = scoreArm(P, "right", ctx);
+  if (left.score === right.score) {
+    // Tie (usually both 0): report the arm that is closer, by the sum of its cues.
+    const sum = (c: FlexCues) => c.bend + c.height + c.beside + c.level + c.clear;
+    return sum(left.cues) >= sum(right.cues) ? left : right;
   }
-  return clamp(combined, 0, 1);
+  return left.score > right.score ? left : right;
 }
 
 /** Best flex score over both arms, 0 when the pose is missing. */
-export function scoreFlex(pose: readonly Pt[] | null | undefined): number {
-  if (!pose || pose.length < 17) return 0;
-  const headPoints = [pose[POSE.NOSE], pose[POSE.LEFT_EYE], pose[POSE.RIGHT_EYE]].filter(
-    (p): p is Pt => p !== undefined,
-  );
-  const left = scoreArmFlex(pose, POSE.LEFT_SHOULDER, POSE.LEFT_ELBOW, POSE.LEFT_WRIST, headPoints);
-  const right = scoreArmFlex(pose, POSE.RIGHT_SHOULDER, POSE.RIGHT_ELBOW, POSE.RIGHT_WRIST, headPoints);
-  return Math.max(left, right);
+export function scoreFlex(pose: readonly Pt[] | null | undefined, ctx: FlexContext = {}): number {
+  return scoreFlexDetailed(pose, ctx).score;
 }

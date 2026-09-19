@@ -64,7 +64,7 @@ export function loadStills(): Still[] {
 
 /** Frame-level scores for one still, exactly what the page computes before the FSM. */
 export function scoreStill(s: Still): Record<Gesture, number> {
-  return fuseScores({ pose: s.pose, hands: s.hands, face: faceMetrics(s.face, s.aspect) });
+  return fuseScores({ pose: s.pose, hands: s.hands, face: faceMetrics(s.face, s.aspect), aspect: s.aspect }).scores;
 }
 
 export type Segment = { still: string; ms: number; transitionMs: number; talk?: boolean; look?: boolean };
@@ -189,7 +189,7 @@ export function runClip(
   const fires: Fire[] = [];
   const scores: Array<Record<Gesture, number>> = [];
   for (const f of frames) {
-    const r = engine.update({ pose: f.pose, hands: f.hands, face: faceMetrics(f.face, clip.aspect) });
+    const r = engine.update({ pose: f.pose, hands: f.hands, face: faceMetrics(f.face, clip.aspect), aspect: clip.aspect }, f.ms);
     scores.push(r.scores);
     if (r.fired && gate.tryFire(r.fired, f.ms)) fires.push({ gesture: r.fired, ms: f.ms });
   }
