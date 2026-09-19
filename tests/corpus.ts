@@ -68,8 +68,8 @@ export function scoreStill(s: Still): Record<Gesture, number> {
 }
 
 export type Segment = { still: string; ms: number; transitionMs: number; talk?: boolean; look?: boolean };
-/** `accept`: other emotes that also satisfy this event (a flex whose fist the hand model reads as a thumbs-up). */
-export type ClipEvent = { gesture: Gesture; startMs: number; endMs: number; accept?: Gesture[] };
+/** One expected emote per event: the labelled gesture is the only emote that satisfies it (FIX round 3 removed the per-event `accept` list). */
+export type ClipEvent = { gesture: Gesture; startMs: number; endMs: number };
 export type Clip = {
   id: string;
   kind: "positive" | "partial" | "occluded" | "neutral" | "hard";
@@ -224,11 +224,11 @@ export function loadVideoClips(): VideoClip[] {
         fps: number;
         aspect: number;
         durationMs: number;
-        events: Array<{ gesture: Gesture; still: string; startMs: number; endMs: number; accept?: Gesture[] }>;
+        events: Array<{ gesture: Gesture; still: string; startMs: number; endMs: number }>;
         frames: VideoFrame[];
       };
       const id = f.replace(/\.json$/, "");
-      const events: ClipEvent[] = raw.events.map((e) => ({ gesture: e.gesture, startMs: e.startMs, endMs: e.endMs, ...(e.accept ? { accept: e.accept } : {}) }));
+      const events: ClipEvent[] = raw.events.map((e) => ({ gesture: e.gesture, startMs: e.startMs, endMs: e.endMs }));
       const kind = events.length ? "positive" : "hard";
       const clip: Clip = {
         id,
@@ -267,7 +267,7 @@ export type Judgement = {
   pass: boolean;
   problems: string[];
   latenciesMs: number[];
-  /** Fires that matched an expected (or accepted) event. */
+  /** Fires that matched an expected event (an occluded clip's `acceptFires` gesture counts too). */
   matched: Fire[];
   /** Fires that matched nothing: false triggers. */
   unmatched: Fire[];
@@ -284,7 +284,7 @@ export function judgeClip(clip: Clip, fires: Fire[]): Judgement {
   const missed: ClipEvent[] = [];
   for (const ev of clip.events) {
     // A fire counts for an event from 400 ms before the still is fully reached (the transition) until it leaves.
-    const idx = unmatched.findIndex((f) => (f.gesture === ev.gesture || ev.accept?.includes(f.gesture)) && f.ms >= ev.startMs - 400 && f.ms <= ev.endMs);
+    const idx = unmatched.findIndex((f) => f.gesture === ev.gesture && f.ms >= ev.startMs - 400 && f.ms <= ev.endMs);
     const expected = clip.expectFires.includes(ev.gesture) || accept.has(ev.gesture);
     if (idx === -1) {
       // A partial clip (gesture not visible to the landmarkers) or an occluded yawn tolerates a miss.

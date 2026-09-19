@@ -3,7 +3,7 @@ import { DemoSource } from "./demo";
 import { drawOverlay } from "./draw";
 import { EMOTES, EmoteGate, type Emote } from "./emotes";
 import { faceMetrics } from "./gestures/face";
-import { GESTURES, GestureEngine, type FrameResult, type Gesture } from "./gestures/engine";
+import { GESTURES, GestureEngine, type FrameResult, type Gesture, poseGap, rawScores } from "./gestures/engine";
 import type { Pt } from "./gestures/geometry";
 import { HintHold, hintText, type ShownHint, stageAspect } from "./hints";
 import { loadLandmarkers, type Landmarkers } from "./landmarkers";
@@ -146,16 +146,21 @@ function updateHint(result: FrameResult, now: number): void {
   }
 }
 
+/**
+ * Per-frame trace for the fake-camera harness (`?trace` in the URL only): the raw rule scores, the pose
+ * gap and the engine's view of every frame, so a wrong emote on a reel can be read frame by frame.
+ * Never on for a visitor; the buffer is capped.
+ */
+const TRACE: Array<Record<string, unknown>> | null = new URLSearchParams(location.search).has("trace") ? [] : null;
+if (TRACE) (window as unknown as { __trace: unknown }).__trace = TRACE;
+
 function handleResult(input: { pose: Pt[] | null; hands: Pt[][]; face: Pt[] | null }, aspect: number, figure: boolean, now: number): void {
-  const result = engine.update(
-    {
-      pose: input.pose,
-      hands: input.hands,
-      face: faceMetrics(input.face, aspect),
-      aspect,
-    },
-    now,
-  );
+  const frame = { pose: input.pose, hands: input.hands, face: faceMetrics(input.face, aspect), aspect };
+  const result = engine.update(frame, now);
+  if (TRACE && TRACE.length < 6000) {
+    const raw = rawScores(frame);
+    TRACE.push({ ms: Math.round(now), gap: poseGap(frame), hands: input.hands.length, pose: !!input.pose, raw: raw.scores, rawCues: raw.cues, fused: result.scores, cues: result.cues, active: result.active, fired: result.fired });
+  }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawOverlay(ctx, { pose: input.pose, hands: input.hands, face: input.face, figure });
   updateMeters(result.scores, result.active);

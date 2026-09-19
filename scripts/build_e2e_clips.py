@@ -27,10 +27,6 @@ FPS = 30
 W, H = 640, 480
 REST = "angry-04"
 POS = {"thumbs_up", "flex", "yawn"}
-# Emotes that also satisfy an event, per clip and gesture. flex-09 is a flex whose fist the hand model reads as a
-# perfect thumbs-up; at a hard cut the hand model settles before the pose model, so Thumbs Up may play for that
-# hold. What must not happen is two emotes for one hold.
-ACCEPT = {"flex09x3": {"flex": ["thumbs_up"]}}
 
 CLIPS = {
     # TEST round 1 (docs/reports/emotes.md): hard negatives, the round-1 misses, a repeated thumbs-up.
@@ -48,7 +44,8 @@ CLIPS = {
     "hold-yawn": [(REST, 2.0), ("yawn-12", 10.0), (REST, 2.0)],
     "hold-thumb": [(REST, 2.0), ("thumbs_up-11", 10.0), (REST, 2.0)],
     "hold-flex": [(REST, 2.0), ("flex-04", 10.0), (REST, 2.0)],
-    # FIX round 2: a flexing fist whose thumb reads as a thumbs-up (flex-09) must stay a flex.
+    # FIX round 2: flex-09 (one arm flexed, the other hand pointing at the bicep, which the hand model reads as a
+    # thumbs-up) must play Goblin Muscle; the ground truth is the label, no other emote is accepted (FIX round 3).
     "flex09x3": [(REST, 2.0), ("flex-09", 2.5)] * 3 + [(REST, 1.0)],
 }
 
@@ -83,10 +80,7 @@ def build(outdir, name):
                 f.write(jpeg)
             g = base.rsplit("-", 1)[0]
             if base != REST and g in POS and name not in ("hard", "hard2"):
-                ev = {"gesture": g, "still": sid, "startMs": int(t * 1000), "endMs": int((t + secs) * 1000)}
-                if g in ACCEPT.get(name, {}):
-                    ev["accept"] = ACCEPT[name][g]
-                events.append(ev)
+                events.append({"gesture": g, "still": sid, "startMs": int(t * 1000), "endMs": int((t + secs) * 1000)})
             t += secs
     json.dump(
         {"file": os.path.basename(out), "fps": FPS, "width": W, "height": H, "durationMs": int(t * 1000), "segments": [[s, d] for s, d in segs], "events": events},

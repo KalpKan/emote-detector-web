@@ -4,9 +4,11 @@
 //   node scripts/e2e-camera.mjs [url]        default http://localhost:4173/ (npm run build && npm run preview)
 //   CLIP=/path/to.mjpeg LABELS=/path/to.json  other clip; GPU=1 uses the Mac GPU instead of SwiftShader;
 //   WIDTH=390 for the phone layout.  Exit code 1 when the clip fails its ground truth.
+//   TRACE=/path/out.json with a url ending in ?trace saves the page's per-frame trace (raw scores, cues,
+//   pose gap, fused scores, active/fired; clip position in `clip`) so a wrong emote can be read frame by frame.
 // Firings are read from the page's own emote box (#emote-name becoming visible), the same thing a
 // visitor sees, so a pass here means the whole path works: camera frame -> landmarks -> rules -> emote.
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import puppeteer from "puppeteer-core";
 
@@ -58,6 +60,11 @@ try {
   await new Promise((r) => setTimeout(r, labels.durationMs + 500));
   const D = labels.durationMs;
   const raw = await page.evaluate(() => window.__fires);
+  if (process.env.TRACE) {
+    const trace = await page.evaluate(() => window.__trace ?? null);
+    if (trace) writeFileSync(process.env.TRACE, JSON.stringify(trace.map((t) => ({ ...t, clip: Math.round((t.ms - streamAt) % labels.durationMs), pass: Math.floor((t.ms - streamAt) / labels.durationMs) }))));
+    else console.log("no trace: the url needs ?trace");
+  }
   // Exactly one loop is judged: a fire seen after D ms belongs to the next pass of the clip.
   const fires = raw
     .map((f) => ({ name: f.name, ms: Math.round((f.at - streamAt) % D), sinceStart: Math.round(f.at - t0), pass: Math.floor((f.at - streamAt) / D) }))
@@ -70,8 +77,8 @@ try {
   const left = [...fires];
   // An event that was already in progress when the models became ready is judged on its next loop pass,
   // which the one-loop window still covers; a fire counts for an event from 400 ms before it to its end.
-  // An event may list `accept`: other gestures whose emote also satisfies it (a flexing fist the hand model reads as a thumbs-up).
-  const inEvent = (f, ev) => (f.name === nameOf[ev.gesture] || (ev.accept ?? []).some((g) => f.name === nameOf[g])) && f.ms >= ev.startMs - 400 && f.ms <= ev.endMs;
+  // Only the labelled gesture's emote satisfies an event (FIX round 3 removed the per-event `accept` list that let flex09x3 pass on Thumbs Up).
+  const inEvent = (f, ev) => f.name === nameOf[ev.gesture] && f.ms >= ev.startMs - 400 && f.ms <= ev.endMs;
   for (const ev of labels.events) {
     const i = left.findIndex((f) => inEvent(f, ev));
     if (i === -1) problems.push(`missed ${ev.gesture} (${ev.startMs}-${ev.endMs} ms)`);

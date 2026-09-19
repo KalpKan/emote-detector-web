@@ -30,12 +30,14 @@ describe("VIDEO-mode landmark clips (real .task models, jittery pose)", () => {
     expect(x.j.matched.filter((f) => f.gesture === "thumbs_up").length).toBe(4);
   });
 
-  it("flex09x3: a flexing fist whose thumb reads as a thumbs-up plays exactly one emote per hold, never two", { timeout: T }, () => {
-    // At a hard cut the hand model settles a frame before the pose model, so Thumbs Up may be the one that
-    // plays (the still corpus holds this photo at flex); a second emote for the same hold is the defect.
+  it("flex09x3 (round-3 D1): a flex whose other hand reads as a thumbs-up plays Goblin Muscle three times, never Thumbs Up", { timeout: T }, () => {
+    // flex-09: one arm flexed, the other hand pointing at the bicep at chest height, which the hand model calls a
+    // perfect thumbs-up from the first frame while the pose model needs ~400 ms after the cut to see the arm.
+    // The visitor must see Goblin Muscle, and only that (FIX round 2 accepted Thumbs Up here; that is the defect).
     const x = byId("flex09x3");
     expect(x.j.problems, `fires: ${x.fires}`).toEqual([]);
-    expect(x.j.matched.length).toBe(3);
+    expect(x.j.matched.map((f) => f.gesture)).toEqual(["flex", "flex", "flex"]);
+    expect(x.fires).not.toContain("thumbs_up");
   });
 
   it("fast (D2): thumbs-up 1.2 s -> flex 1.2 s -> yawn 1.5 s back to back fires all three, in order", { timeout: T }, () => {

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { COOLDOWN_MS, EmoteGate, EMOTES, emoteForGesture, GAP_MS } from "../src/emotes";
 import { faceMetrics } from "../src/gestures/face";
-import { fuseScores, type Gesture, GestureEngine, OFF_LINE, OFF_MS, ON_MS, SMOOTH_MS } from "../src/gestures/engine";
+import { fuseScores, type Gesture, GestureEngine, OFF_LINE, OFF_MS, ON_MS, THUMB_WAIT_MAX_MS, SMOOTH_MS } from "../src/gestures/engine";
+import { POSE } from "../src/gestures/flex";
 import * as fx from "../src/fixtures";
 
 const thumbFrame = { hands: [fx.handThumbsUp()] };
@@ -82,6 +83,64 @@ describe("GestureEngine smoothing before the conflict rules (round 2, D1)", () =
       if (r.fired) fired.push(r.fired);
     }
     expect(fired).toEqual(["flex"]);
+  });
+  describe("a stale pose at a cut (round 3, D1: flex-09 through the real pipeline)", () => {
+    // The hand model settles on the first frame; the pose model (lite, VIDEO mode) needs a few hundred
+    // milliseconds to see where the arms went. Until its wrists agree with the hands, the pose is stale:
+    // a thumbs-up must wait for it (up to THUMB_WAIT_MAX_MS), and the flex average restarts when it lands.
+    const pointing = fx.handThumbsUp(-0.15, 0); // wrist at the neutral pose's right wrist (0.35, 0.8), chest height
+    const fist = fx.handThumbsDown().map((q) => ({ x: q.x + 0.22, y: q.y - 0.58 })); // the flexing fist at the flexed pose's left wrist (0.72, 0.22), not a thumbs-up
+    const hands = [pointing, fist];
+    it("a flex whose other hand reads as a thumbs-up fires Goblin Muscle only, even though the pose lands 400 ms after the hands", () => {
+      const e = new GestureEngine();
+      const fired: string[] = [];
+      for (let t = 0; t < 3000; t += 40) {
+        // The stale pose still has both arms hanging; from 400 ms it has the left arm flexed (wrist at the fist).
+        const r = e.update({ hands, pose: t < 400 ? fx.poseNeutral() : fx.poseFlex(), aspect: 1 }, t);
+        if (r.fired) fired.push(`${r.fired}@${t}`);
+      }
+      expect(fired).toHaveLength(1);
+      expect(fired[0]).toMatch(/^flex@/);
+      expect(Number(fired[0].split("@")[1])).toBeLessThanOrEqual(1000);
+    });
+    it("a flex the pose finds one frame after the hands (no stale pose, just a head start) still fires Goblin Muscle only", () => {
+      // Without the wait, the thumbs-up's 150 ms charge beats the ratio rule while the flex average is still climbing.
+      const e = new GestureEngine();
+      const fired: string[] = [];
+      const stalePose = fx.poseFlex();
+      stalePose[POSE.LEFT_WRIST] = { x: 0.7, y: 0.3 }; // the pose already places a wrist by the fist (current), but the arm is not yet a flex
+      for (let t = 0; t < 3000; t += 40) {
+        const r = e.update({ hands, pose: t < 40 ? stalePose : fx.poseFlex(), aspect: 1 }, t);
+        if (r.fired) fired.push(r.fired);
+      }
+      expect(fired).toEqual(["flex"]);
+    });
+    it("a thumbs-up whose pose never catches up (a wrist the pose cannot place) still fires within the wait cap", () => {
+      const e = new GestureEngine();
+      const fired: string[] = [];
+      const pose = fx.poseNeutral();
+      pose[POSE.RIGHT_WRIST] = { x: 0.1, y: 0.95 }; // the pose puts the right wrist nowhere near the hand model's
+      for (let t = 0; t < 2000; t += 40) {
+        const r = e.update({ hands: [pointing], pose, aspect: 1 }, t);
+        if (r.fired) fired.push(`${r.fired}@${t}`);
+      }
+      expect(fired).toHaveLength(1);
+      const at = Number(fired[0].split("@")[1]);
+      expect(at).toBeGreaterThanOrEqual(THUMB_WAIT_MAX_MS);
+      expect(at).toBeLessThanOrEqual(THUMB_WAIT_MAX_MS + 80);
+    });
+    it("a thumbs-up without any pose is not delayed", () => {
+      const e = new GestureEngine();
+      const fires = drive(e, thumbFrame, 0, 1000, 40);
+      expect(fires).toHaveLength(1);
+      expect(fires[0]).toBeLessThanOrEqual(ON_MS.thumbs_up + 80);
+    });
+    it("a thumbs-up whose pose agrees with the hands fires at ON_MS, as before", () => {
+      const e = new GestureEngine();
+      const fires = drive(e, { hands: [pointing], pose: fx.poseNeutral(), aspect: 1 }, 0, 1000, 40);
+      expect(fires).toHaveLength(1);
+      expect(fires[0]).toBeLessThanOrEqual(ON_MS.thumbs_up + 80);
+    });
   });
   it("reports every active gesture, not only the winner", () => {
     const e = new GestureEngine();
