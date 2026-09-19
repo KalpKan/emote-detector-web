@@ -77,7 +77,10 @@ try {
     if (i === -1) problems.push(`missed ${ev.gesture} (${ev.startMs}-${ev.endMs} ms)`);
     else {
       const f = left.splice(i, 1)[0];
-      if (f.ms - ev.startMs > WINDOW) problems.push(`${ev.gesture} late: ${f.ms - ev.startMs} ms after onset`);
+      // D7: an event already in progress when the models became ready (phase inside it) could not be seen
+      // before `phase`, so its latency counts from there; a fire on a later pass counts from the onset.
+      const seenFrom = f.pass === 0 && phase > ev.startMs && phase <= ev.endMs ? phase : ev.startMs;
+      if (f.ms - seenFrom > WINDOW) problems.push(`${ev.gesture} late: ${f.ms - seenFrom} ms after ${seenFrom === phase ? "the models became ready mid-event" : "onset"}`);
       // The one-loop window can reach the same event again on the clip's next pass when the models became
       // ready mid-clip (D9): a second fire for the same event in a LATER pass is that pass's fire, not a
       // re-fire; one in the SAME pass is a genuine re-fire while held.
