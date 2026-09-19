@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run --pool=forks --maxWorkers=1",
     "test:unit": "vitest run --pool=forks --maxWorkers=1 tests/rules.test.ts tests/engine.test.ts tests/demo.test.ts tests/hints.test.ts",
-    "test:corpus": "vitest run --pool=forks --maxWorkers=1 tests/stills.test.ts tests/clips.test.ts",
+    "test:corpus": "vitest run --pool=forks --maxWorkers=1 tests/stills.test.ts tests/clips.test.ts tests/video.test.ts",
     "report": "vite-node scripts/eval-corpus.ts",
     "e2e": "node scripts/e2e-camera.mjs",
     "typecheck": "tsc"

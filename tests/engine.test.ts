@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { EmoteGate, EMOTES, emoteForGesture } from "../src/emotes";
+import { COOLDOWN_MS, EmoteGate, EMOTES, emoteForGesture, GAP_MS } from "../src/emotes";
 import { faceMetrics } from "../src/gestures/face";
-import { fuseScores, GestureEngine, OFF_MS, ON_MS } from "../src/gestures/engine";
+import { fuseScores, type Gesture, GestureEngine, OFF_LINE, OFF_MS, ON_MS, SMOOTH_MS } from "../src/gestures/engine";
 import * as fx from "../src/fixtures";
 
 const thumbFrame = { hands: [fx.handThumbsUp()] };
@@ -59,6 +59,39 @@ describe("fuseScores (conflict rules)", () => {
   });
 });
 
+describe("GestureEngine smoothing before the conflict rules (round 2, D1)", () => {
+  it("a perfect thumbs-up over a flex reading that jitters 0.5-0.95 frame to frame (VIDEO-mode pose) fires Thumbs Up, never Goblin Muscle", () => {
+    // thumbs_up-04 through the live pipeline: hand cues all 1.0 on every frame; the pose model's
+    // wrist-height cue flips between about 0.5 and 0.95 on consecutive 100 ms samples of a static image.
+    const strong = fx.poseFlex();
+    const weak = fx.poseFlex();
+    weak[15] = { x: 0.72, y: 0.376 }; // fist only just above the shoulder: flex about 0.55
+    const e = new GestureEngine();
+    const fired: string[] = [];
+    for (let t = 0; t < 3000; t += 100) {
+      const r = e.update({ hands: [fx.handThumbsUp()], pose: t % 200 === 0 ? strong : weak, aspect: 1 }, t);
+      if (r.fired) fired.push(r.fired);
+    }
+    expect(fired).toEqual(["thumbs_up"]);
+  });
+  it("a steady strong flex whose fist reads as a thumbs-up fires Goblin Muscle only (flex-09)", () => {
+    const e = new GestureEngine();
+    const fired: string[] = [];
+    for (let t = 0; t < 3000; t += 100) {
+      const r = e.update({ hands: [fx.handThumbsUp()], pose: fx.poseFlex(), aspect: 1 }, t);
+      if (r.fired) fired.push(r.fired);
+    }
+    expect(fired).toEqual(["flex"]);
+  });
+  it("reports every active gesture, not only the winner", () => {
+    const e = new GestureEngine();
+    let r = e.update(thumbFrame, 0);
+    for (let t = 40; t < 1000; t += 40) r = e.update(thumbFrame, t);
+    expect(r.actives).toEqual(["thumbs_up"]);
+    expect(r.active).toBe("thumbs_up");
+  });
+});
+
 describe("GestureEngine time-based dwell / release (D4)", () => {
   it("fires once the score has held for ON_MS, at 25 fps and at 8 fps alike", () => {
     for (const dt of [40, 125]) {
@@ -96,11 +129,13 @@ describe("GestureEngine time-based dwell / release (D4)", () => {
     expect(drive(e, yawnFrame, 0, ON_MS.yawn - 40, 40)).toEqual([]);
     expect(drive(e, yawnFrame, ON_MS.yawn - 40, ON_MS.yawn + 200, 40)).toHaveLength(1);
   });
-  it("a gesture that vanishes from the frame releases like any other miss", () => {
+  it("a gesture that vanishes from the frame releases like any other miss (OFF_MS after the smoothed score has dropped)", () => {
     const e = new GestureEngine();
     drive(e, yawnFrame, 0, 1000, 40);
-    drive(e, empty, 1000, 1000 + OFF_MS + 80, 40);
-    expect(e.update(yawnFrame, 1000 + OFF_MS + 80).active).toBeNull();
+    // The smoothed score takes about SMOOTH_MS * ln(1 / OFF_LINE) to fall below the line, then OFF_MS.
+    const decay = Math.ceil(SMOOTH_MS * Math.log(1 / OFF_LINE));
+    drive(e, empty, 1000, 1000 + decay + OFF_MS + 80, 40);
+    expect(e.update(yawnFrame, 1000 + decay + OFF_MS + 80).active).toBeNull();
   });
   it("rides through landmark dropouts: a score that is 0 on every third frame still fires once and holds", () => {
     const e = new GestureEngine();
@@ -152,13 +187,32 @@ describe("emotes and the 2 s spam gate", () => {
       expect(e.sound).toMatch(/^\/emotes\/.+\.mp3$/);
     }
   });
-  it("fires, then refuses for 2000 ms, then fires again", () => {
+  it("D2: a different gesture may play GAP_MS after the last one; the same gesture waits COOLDOWN_MS", () => {
     const gate = new EmoteGate();
-    expect(gate.tryFire("thumbs_up", 0)?.id).toBe("thumbs_up");
-    expect(gate.tryFire("flex", 1000)).toBeNull();
-    expect(gate.tryFire("flex", 1999)).toBeNull();
-    expect(gate.remaining(1500)).toBe(500);
-    expect(gate.tryFire("flex", 2000)?.id).toBe("goblin_muscle");
-    expect(gate.remaining(2000)).toBe(2000);
+    const frame = (fired: Gesture | null, actives: Gesture[]) => ({ fired, actives });
+    expect(gate.update(frame("thumbs_up", ["thumbs_up"]), 0)?.id).toBe("thumbs_up");
+    // A flex edge 300 ms later is too soon (its sound would talk over the thumbs-up), but it is
+    // remembered and plays when the gap ends, because the flex is still held.
+    expect(gate.update(frame("flex", ["flex"]), 300)).toBeNull();
+    expect(gate.update(frame(null, ["flex"]), 500)).toBeNull();
+    expect(gate.update(frame(null, ["flex"]), GAP_MS)?.id).toBe("goblin_muscle");
+    expect(gate.update(frame(null, ["flex"]), GAP_MS + 40)).toBeNull();
+    // The same gesture again (released and re-held) waits the full cooldown from its last fire.
+    expect(gate.update(frame("flex", ["flex"]), GAP_MS + 1000)).toBeNull();
+    expect(gate.update(frame(null, ["flex"]), GAP_MS + COOLDOWN_MS - 40)).toBeNull();
+    expect(gate.update(frame(null, ["flex"]), GAP_MS + COOLDOWN_MS)?.id).toBe("goblin_muscle");
+    expect(gate.remaining(GAP_MS + COOLDOWN_MS)).toBe(COOLDOWN_MS);
+  });
+  it("D2: a refused edge whose gesture is released before the gap ends never plays", () => {
+    const gate = new EmoteGate();
+    expect(gate.update({ fired: "thumbs_up", actives: ["thumbs_up"] }, 0)?.id).toBe("thumbs_up");
+    expect(gate.update({ fired: "yawn", actives: ["yawn"] }, 200)).toBeNull();
+    expect(gate.update({ fired: null, actives: [] }, 400)).toBeNull(); // yawn released
+    expect(gate.update({ fired: null, actives: [] }, 5000)).toBeNull();
+  });
+  it("a gesture held through a whole cooldown fires once, not again when the cooldown ends", () => {
+    const gate = new EmoteGate();
+    expect(gate.update({ fired: "yawn", actives: ["yawn"] }, 0)?.id).toBe("princess_yawn");
+    for (let t = 40; t < 6000; t += 40) expect(gate.update({ fired: null, actives: ["yawn"] }, t)).toBeNull();
   });
 });

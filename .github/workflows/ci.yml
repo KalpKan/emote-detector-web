@@ -26,7 +26,7 @@ jobs:
       - run: npm run build
 
   corpus:
-    name: Consumer-grade detection gate (photo corpus + ground-truth clips)
+    name: Consumer-grade detection gate (photo corpus + ground-truth clips + VIDEO-mode reels)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

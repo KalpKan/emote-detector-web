@@ -13,9 +13,9 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { COOLDOWN_MS, EmoteGate } from "../src/emotes";
+import { EmoteGate } from "../src/emotes";
 import { faceMetrics, type FaceMetrics } from "../src/gestures/face";
-import { fuseScores, type Gesture, GestureEngine, GESTURES } from "../src/gestures/engine";
+import { type FrameInput, fuseScores, type Gesture, GestureEngine, GESTURES } from "../src/gestures/engine";
 import type { Pt } from "../src/gestures/geometry";
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "fixtures");
@@ -68,7 +68,8 @@ export function scoreStill(s: Still): Record<Gesture, number> {
 }
 
 export type Segment = { still: string; ms: number; transitionMs: number; talk?: boolean; look?: boolean };
-export type ClipEvent = { gesture: Gesture; startMs: number; endMs: number };
+/** `accept`: other emotes that also satisfy this event (a flex whose fist the hand model reads as a thumbs-up). */
+export type ClipEvent = { gesture: Gesture; startMs: number; endMs: number; accept?: Gesture[] };
 export type Clip = {
   id: string;
   kind: "positive" | "partial" | "occluded" | "neutral" | "hard";
@@ -176,24 +177,87 @@ export function synthesizeClip(clip: Clip, stills = loadStills()): Frame[] {
 export type Fire = { gesture: Gesture; ms: number };
 
 /**
- * Runs frames through the engine + emote gate exactly like src/main.ts
- * (`GestureEngine.update` → `EmoteGate.tryFire` on the `fired` edge).
+ * Runs engine inputs through the engine + emote gate exactly like src/main.ts
+ * (`GestureEngine.update` → `EmoteGate.update` every frame) and returns every firing.
  */
+export function runInputs(
+  inputs: Array<{ ms: number; input: FrameInput }>,
+  makeEngine: () => GestureEngine = () => new GestureEngine(),
+): { fires: Fire[]; scores: Array<Record<Gesture, number>> } {
+  const engine = makeEngine();
+  const gate = new EmoteGate();
+  const fires: Fire[] = [];
+  const scores: Array<Record<Gesture, number>> = [];
+  for (const { ms, input } of inputs) {
+    const r = engine.update(input, ms);
+    scores.push(r.scores);
+    const emote = gate.update(r, ms);
+    if (emote) fires.push({ gesture: emote.gesture, ms });
+  }
+  return { fires, scores };
+}
+
+/** Synthesized clip frames (raw face landmarks) through `runInputs`. */
 export function runClip(
   clip: Clip,
   frames = synthesizeClip(clip),
   makeEngine: () => GestureEngine = () => new GestureEngine(),
 ): { fires: Fire[]; scores: Array<Record<Gesture, number>> } {
-  const engine = makeEngine();
-  const gate = new EmoteGate(COOLDOWN_MS);
-  const fires: Fire[] = [];
-  const scores: Array<Record<Gesture, number>> = [];
-  for (const f of frames) {
-    const r = engine.update({ pose: f.pose, hands: f.hands, face: faceMetrics(f.face, clip.aspect), aspect: clip.aspect }, f.ms);
-    scores.push(r.scores);
-    if (r.fired && gate.tryFire(r.fired, f.ms)) fires.push({ gesture: r.fired, ms: f.ms });
-  }
-  return { fires, scores };
+  return runInputs(
+    frames.map((f) => ({ ms: f.ms, input: { pose: f.pose, hands: f.hands, face: faceMetrics(f.face, clip.aspect), aspect: clip.aspect } })),
+    makeEngine,
+  );
+}
+
+/** A VIDEO-mode landmark fixture (tests/fixtures/video/*.json): engine inputs per frame plus ground truth. */
+export type VideoFrame = { ms: number; pose: number[][] | null; hands: number[][][]; face: FaceMetrics | null };
+export type VideoClip = { id: string; aspect: number; fps: number; frames: Array<{ ms: number; input: FrameInput }>; clip: Clip };
+
+export function loadVideoClips(): VideoClip[] {
+  const dir = join(FIXTURES, "video");
+  return readdirSync(dir)
+    .filter((f: string) => f.endsWith(".json"))
+    .sort()
+    .map((f: string) => {
+      const raw = JSON.parse(readFileSync(join(dir, f), "utf8")) as {
+        clip: string;
+        fps: number;
+        aspect: number;
+        durationMs: number;
+        events: Array<{ gesture: Gesture; still: string; startMs: number; endMs: number; accept?: Gesture[] }>;
+        frames: VideoFrame[];
+      };
+      const id = f.replace(/\.json$/, "");
+      const events: ClipEvent[] = raw.events.map((e) => ({ gesture: e.gesture, startMs: e.startMs, endMs: e.endMs, ...(e.accept ? { accept: e.accept } : {}) }));
+      const kind = events.length ? "positive" : "hard";
+      const clip: Clip = {
+        id,
+        kind,
+        fps: raw.fps,
+        jitter: 0,
+        seed: 0,
+        aspect: raw.aspect,
+        segments: [],
+        events,
+        expectFires: events.map((e) => e.gesture),
+        note: `VIDEO-mode landmarks of ${raw.clip}`,
+      };
+      return {
+        id,
+        aspect: raw.aspect,
+        fps: raw.fps,
+        clip,
+        frames: raw.frames.map((fr) => ({
+          ms: fr.ms,
+          input: { pose: fr.pose ? toPts(fr.pose) : null, hands: fr.hands.map(toPts), face: fr.face, aspect: raw.aspect },
+        })),
+      };
+    });
+}
+
+/** VIDEO-mode fixture frames through `runInputs`. */
+export function runFrames(frames: Array<{ ms: number; input: FrameInput }>, _aspect?: number): Fire[] {
+  return runInputs(frames).fires;
 }
 
 export const FIRE_WINDOW_MS = 1000;
@@ -220,7 +284,7 @@ export function judgeClip(clip: Clip, fires: Fire[]): Judgement {
   const missed: ClipEvent[] = [];
   for (const ev of clip.events) {
     // A fire counts for an event from 400 ms before the still is fully reached (the transition) until it leaves.
-    const idx = unmatched.findIndex((f) => f.gesture === ev.gesture && f.ms >= ev.startMs - 400 && f.ms <= ev.endMs);
+    const idx = unmatched.findIndex((f) => (f.gesture === ev.gesture || ev.accept?.includes(f.gesture)) && f.ms >= ev.startMs - 400 && f.ms <= ev.endMs);
     const expected = clip.expectFires.includes(ev.gesture) || accept.has(ev.gesture);
     if (idx === -1) {
       // A partial clip (gesture not visible to the landmarkers) or an occluded yawn tolerates a miss.

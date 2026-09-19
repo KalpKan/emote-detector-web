@@ -70,7 +70,8 @@ try {
   const left = [...fires];
   // An event that was already in progress when the models became ready is judged on its next loop pass,
   // which the one-loop window still covers; a fire counts for an event from 400 ms before it to its end.
-  const inEvent = (f, ev) => f.name === nameOf[ev.gesture] && f.ms >= ev.startMs - 400 && f.ms <= ev.endMs;
+  // An event may list `accept`: other gestures whose emote also satisfies it (a flexing fist the hand model reads as a thumbs-up).
+  const inEvent = (f, ev) => (f.name === nameOf[ev.gesture] || (ev.accept ?? []).some((g) => f.name === nameOf[g])) && f.ms >= ev.startMs - 400 && f.ms <= ev.endMs;
   for (const ev of labels.events) {
     const i = left.findIndex((f) => inEvent(f, ev));
     if (i === -1) problems.push(`missed ${ev.gesture} (${ev.startMs}-${ev.endMs} ms)`);

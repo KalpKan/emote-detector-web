@@ -4,7 +4,7 @@
  * (emote level, with latency), plus the false-trigger rate on the neutral and
  * hard-negative minutes.  Run: npx vite-node scripts/eval-corpus.ts [--verbose]
  */
-import { clipMetrics, judgeClip, loadClips, loadStills, metrics, runClip, scoreStill, synthesizeClip, GESTURES, type Judgement, type Clip } from "../tests/corpus";
+import { clipMetrics, judgeClip, loadClips, loadStills, loadVideoClips, metrics, runClip, runFrames, scoreStill, synthesizeClip, GESTURES, type Judgement, type Clip } from "../tests/corpus";
 
 const verbose = process.argv.includes("--verbose");
 const pct = (n: number) => `${Math.round(n * 100)}%`;
@@ -62,3 +62,28 @@ latencies.sort((a, b) => a - b);
 const p = (q: number) => latencies[Math.min(latencies.length - 1, Math.floor(q * latencies.length))] ?? NaN;
 console.log(`  latency from onset: median ${p(0.5)} ms, p95 ${p(0.95)} ms, max ${latencies[latencies.length - 1]} ms (${latencies.length} matched fires)`);
 console.log(`  gated clips passing: ${pass}/${total}`);
+
+// VIDEO-mode reels (emote level; the site's own models in VIDEO mode, jittery pose, 10 fps)
+console.log("\nVIDEO-MODE REELS (emote level, real .task models in VIDEO mode over the fake-camera clips, 10 fps; fire window 1000 ms)");
+const videos = loadVideoClips();
+const vJudged: Array<{ clip: Clip; j: Judgement }> = [];
+let vPass = 0;
+const vLat: number[] = [];
+for (const v of videos) {
+  const fires = runFrames(v.frames);
+  const j = judgeClip(v.clip, fires);
+  vLat.push(...j.latenciesMs);
+  vJudged.push({ clip: v.clip, j });
+  if (j.pass) vPass += 1;
+  const secs = v.frames[v.frames.length - 1].ms / 1000;
+  const list = fires.map((f) => `${f.gesture}@${f.ms}`).join(" ") || "none";
+  if (v.clip.kind === "hard") console.log(`  ${v.id.padEnd(10)} ${fires.length} firings in ${secs.toFixed(0)} s: ${list}`);
+  else console.log(`  ${v.id.padEnd(10)} ${j.pass ? "PASS" : "FAIL"} ${v.clip.events.length} events, fires=[${list}] ${j.problems.join("; ")}`);
+}
+const vm = clipMetrics(vJudged);
+console.log("");
+for (const g of GESTURES) console.log(`  ${g.padEnd(10)} precision ${pct(vm[g].precision)}  recall ${pct(vm[g].recall)}  (tp ${vm[g].tp} fp ${vm[g].fp} fn ${vm[g].fn})`);
+vLat.sort((a, b) => a - b);
+const vp = (q: number) => vLat[Math.min(vLat.length - 1, Math.floor(q * vLat.length))] ?? NaN;
+console.log(`  latency from the cut: median ${vp(0.5)} ms, p95 ${vp(0.95)} ms, max ${vLat[vLat.length - 1]} ms (${vLat.length} matched fires)`);
+console.log(`  gated reels passing: ${vPass}/${videos.length}`);
