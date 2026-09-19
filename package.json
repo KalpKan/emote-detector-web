@@ -9,6 +9,10 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run --pool=forks --maxWorkers=1",
+    "test:unit": "vitest run --pool=forks --maxWorkers=1 tests/rules.test.ts tests/engine.test.ts tests/demo.test.ts",
+    "test:corpus": "vitest run --pool=forks --maxWorkers=1 tests/stills.test.ts tests/clips.test.ts",
+    "report": "vite-node scripts/eval-corpus.ts",
+    "e2e": "node scripts/e2e-camera.mjs",
     "typecheck": "tsc"
   },
   "dependencies": {
@@ -17,8 +21,10 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "puppeteer-core": "^25.11.0",
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
+    "vite-node": "^6.0.0",
     "vitest": "^5.0.1"
   }
 }

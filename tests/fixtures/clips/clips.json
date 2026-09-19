@@ -1,0 +1,2521 @@
+{
+ "_about": "Writes tests/fixtures/clips/clips.json: the ground-truth CLIP SCRIPTS the",
+ "fps": 25,
+ "jitter": 0.004,
+ "transitionMs": 300,
+ "kinds": {
+  "positive": "expectFires must match exactly, each within 1000 ms of its event startMs (gated)",
+  "partial": "the landmarkers cannot see the gesture (arm-only crop, no face mesh): a miss is tolerated, any other emote is a false trigger (gated)",
+  "occluded": "yawn with a hand over the mouth: only acceptFires may fire (gated: no wrong emote)",
+  "neutral": "must fire nothing (gated: 0 in the whole clip, i.e. < 1 per minute)",
+  "hard": "should fire nothing; gated at <= 1 firing in the whole clip"
+ },
+ "clips": [
+  {
+   "id": "single-flex-01",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 1,
+   "aspect": 1.76289,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-01",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "profile, one arm"
+  },
+  {
+   "id": "single-flex-02",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 2,
+   "aspect": 1.52339,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-02",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-flex-03",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 3,
+   "aspect": 1.7551,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-03",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "one arm, casual"
+  },
+  {
+   "id": "single-flex-04",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 4,
+   "aspect": 1.68525,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-04",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "profile, one arm, gym"
+  },
+  {
+   "id": "single-flex-05",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 5,
+   "aspect": 1.76897,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-05",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-flex-06",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 6,
+   "aspect": 1.75427,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-06",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-flex-07",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 7,
+   "aspect": 1.82332,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-07",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-flex-08",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 8,
+   "aspect": 1.69836,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-08",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-flex-09",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 9,
+   "aspect": 1.75333,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-09",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "one arm, looking at the bicep"
+  },
+  {
+   "id": "single-flex-10",
+   "kind": "partial",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 10,
+   "aspect": 0.7239,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-10",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "close-up of one arm, no torso or face in frame: pose model finds nothing"
+  },
+  {
+   "id": "single-flex-11",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 11,
+   "aspect": 1.29595,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-11",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "double biceps, thin subject"
+  },
+  {
+   "id": "single-flex-12",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 12,
+   "aspect": 2.05952,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-12",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "back view, double biceps"
+  },
+  {
+   "id": "single-flex-13",
+   "kind": "partial",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 13,
+   "aspect": 1.75945,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-13",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": "close-up of one arm, no torso or face in frame: pose model finds nothing"
+  },
+  {
+   "id": "single-flex-14",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 14,
+   "aspect": 1.58044,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-14",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-flex-15",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 15,
+   "aspect": 1.68151,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-15",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "flex"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-01",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 16,
+   "aspect": 1.4744,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-01",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-02",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 17,
+   "aspect": 1.27336,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-02",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-03",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 18,
+   "aspect": 2.19087,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-03",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": "thumb up beside the head, elbow bent (looks like a raised arm to the flex rule)"
+  },
+  {
+   "id": "single-thumbs_up-04",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 19,
+   "aspect": 0.99711,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-04",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": "thumb up beside the head, elbow bent (looks like a raised arm to the flex rule)"
+  },
+  {
+   "id": "single-thumbs_up-05",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 20,
+   "aspect": 1.57143,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-05",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-06",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 21,
+   "aspect": 1.44697,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-06",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-07",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 22,
+   "aspect": 1.76897,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-07",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-08",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 23,
+   "aspect": 1.00311,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-08",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-09",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 24,
+   "aspect": 1.34694,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-09",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-10",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 25,
+   "aspect": 1.47231,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-10",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-11",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 26,
+   "aspect": 0.66213,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-11",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-12",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 27,
+   "aspect": 1.08997,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-12",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-13",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 28,
+   "aspect": 1.21003,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-13",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-14",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 29,
+   "aspect": 1.52901,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-14",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-15",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 30,
+   "aspect": 1.37586,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-15",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-16",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 31,
+   "aspect": 1.38033,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-16",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": ""
+  },
+  {
+   "id": "single-thumbs_up-17",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 32,
+   "aspect": 1.76868,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-17",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "thumbs_up"
+   ],
+   "note": "two thumbs up at shoulder height, elbows bent"
+  },
+  {
+   "id": "single-yawn-02",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 33,
+   "aspect": 1.92647,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-02",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn at a desk, hand near the cheek, mouth visible"
+  },
+  {
+   "id": "single-yawn-03",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 34,
+   "aspect": 1.80488,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-03",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn while stretching both fists up beside the head (also a flex hard negative)"
+  },
+  {
+   "id": "single-yawn-04",
+   "kind": "occluded",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 35,
+   "aspect": 1.75524,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-04",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [],
+   "note": "hand in front of the mouth (a yawn fire is also accepted; any other emote is a false trigger)",
+   "acceptFires": [
+    "yawn"
+   ]
+  },
+  {
+   "id": "single-yawn-05",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 36,
+   "aspect": 1.02217,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-05",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn, mouth moderately open"
+  },
+  {
+   "id": "single-yawn-06",
+   "kind": "partial",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 37,
+   "aspect": 1.51439,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-06",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "face mesh finds no face in this photo (stretching both arms up (also a flex hard negative)); a yawn cannot be measured, so a miss is tolerated, but any other emote is a false trigger"
+  },
+  {
+   "id": "single-yawn-07",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 38,
+   "aspect": 1.79583,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-07",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn lying down, hand near the mouth but mouth visible"
+  },
+  {
+   "id": "single-yawn-08",
+   "kind": "occluded",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 39,
+   "aspect": 1.45361,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-08",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [],
+   "note": "hand over the mouth (a yawn fire is also accepted; any other emote is a false trigger)",
+   "acceptFires": [
+    "yawn"
+   ]
+  },
+  {
+   "id": "single-yawn-09",
+   "kind": "occluded",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 40,
+   "aspect": 1.70213,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-09",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [],
+   "note": "hand over the mouth (a yawn fire is also accepted; any other emote is a false trigger)",
+   "acceptFires": [
+    "yawn"
+   ]
+  },
+  {
+   "id": "single-yawn-10",
+   "kind": "partial",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 41,
+   "aspect": 1.19647,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-10",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "face mesh finds no face in this photo (stretching one arm up (also a flex hard negative)); a yawn cannot be measured, so a miss is tolerated, but any other emote is a false trigger"
+  },
+  {
+   "id": "single-yawn-11",
+   "kind": "partial",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 42,
+   "aspect": 1.89961,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-11",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "face mesh finds no face in this photo (hand in front of the mouth, profile); a yawn cannot be measured, so a miss is tolerated, but any other emote is a false trigger"
+  },
+  {
+   "id": "single-yawn-12",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 43,
+   "aspect": 1.89686,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-12",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "clear yawn"
+  },
+  {
+   "id": "single-yawn-13",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 44,
+   "aspect": 1.40541,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-13",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn, hand below the mouth, mouth visible"
+  },
+  {
+   "id": "single-yawn-14",
+   "kind": "occluded",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 45,
+   "aspect": 1.84112,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-14",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [],
+   "note": "hand over the mouth (a yawn fire is also accepted; any other emote is a false trigger)",
+   "acceptFires": [
+    "yawn"
+   ]
+  },
+  {
+   "id": "single-yawn-15",
+   "kind": "occluded",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 46,
+   "aspect": 1.56757,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-15",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [],
+   "note": "hand over the mouth (a yawn fire is also accepted; any other emote is a false trigger)",
+   "acceptFires": [
+    "yawn"
+   ]
+  },
+  {
+   "id": "single-yawn-16",
+   "kind": "occluded",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 47,
+   "aspect": 1.47788,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-16",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [],
+   "note": "hand over the mouth (a yawn fire is also accepted; any other emote is a false trigger)",
+   "acceptFires": [
+    "yawn"
+   ]
+  },
+  {
+   "id": "single-yawn-17",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 48,
+   "aspect": 1.32095,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-17",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "yawn, hand at the chin, mouth visible"
+  },
+  {
+   "id": "single-yawn-18",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 49,
+   "aspect": 0.9528,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-18",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "clear yawn, glasses"
+  },
+  {
+   "id": "single-yawn-19",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 50,
+   "aspect": 1.65979,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-19",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [
+    "yawn"
+   ],
+   "note": "clear yawn"
+  },
+  {
+   "id": "single-yawn-20",
+   "kind": "occluded",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 51,
+   "aspect": 0.79795,
+   "segments": [
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-20",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [],
+   "note": "hand over the mouth (a yawn fire is also accepted; any other emote is a false trigger)",
+   "acceptFires": [
+    "yawn"
+   ]
+  },
+  {
+   "id": "single-yawn-21",
+   "kind": "occluded",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 52,
+   "aspect": 1.12808,
+   "segments": [
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-21",
+     "ms": 2000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1800,
+     "endMs": 3500
+    }
+   ],
+   "expectFires": [],
+   "note": "hand over the mouth (a yawn fire is also accepted; any other emote is a false trigger)",
+   "acceptFires": [
+    "yawn"
+   ]
+  },
+  {
+   "id": "repeat-flex",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 53,
+   "aspect": 1.52339,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1200,
+     "transitionMs": 0
+    },
+    {
+     "still": "flex-02",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "flex-02",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "flex-02",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "flex",
+     "startMs": 1500,
+     "endMs": 2700
+    },
+    {
+     "gesture": "flex",
+     "startMs": 4500,
+     "endMs": 5700
+    },
+    {
+     "gesture": "flex",
+     "startMs": 7500,
+     "endMs": 8700
+    }
+   ],
+   "expectFires": [
+    "flex",
+    "flex",
+    "flex"
+   ],
+   "note": "three holds of the same gesture, 1.2 s rests"
+  },
+  {
+   "id": "repeat-thumbs_up",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 54,
+   "aspect": 1.57143,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1200,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-05",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "thumbs_up-05",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "thumbs_up-05",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1500,
+     "endMs": 2700
+    },
+    {
+     "gesture": "thumbs_up",
+     "startMs": 4500,
+     "endMs": 5700
+    },
+    {
+     "gesture": "thumbs_up",
+     "startMs": 7500,
+     "endMs": 8700
+    }
+   ],
+   "expectFires": [
+    "thumbs_up",
+    "thumbs_up",
+    "thumbs_up"
+   ],
+   "note": "three holds of the same gesture, 1.2 s rests"
+  },
+  {
+   "id": "repeat-yawn",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 55,
+   "aspect": 1.89686,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1200,
+     "transitionMs": 0
+    },
+    {
+     "still": "yawn-12",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "yawn-12",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "yawn-12",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 1500,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "yawn",
+     "startMs": 1500,
+     "endMs": 2700
+    },
+    {
+     "gesture": "yawn",
+     "startMs": 4500,
+     "endMs": 5700
+    },
+    {
+     "gesture": "yawn",
+     "startMs": 7500,
+     "endMs": 8700
+    }
+   ],
+   "expectFires": [
+    "yawn",
+    "yawn",
+    "yawn"
+   ],
+   "note": "three holds of the same gesture, 1.2 s rests"
+  },
+  {
+   "id": "sequence-three",
+   "kind": "positive",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 56,
+   "aspect": 1.76897,
+   "segments": [
+    {
+     "still": "angry-08",
+     "ms": 1000,
+     "transitionMs": 0
+    },
+    {
+     "still": "thumbs_up-07",
+     "ms": 1800,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1200,
+     "transitionMs": 300
+    },
+    {
+     "still": "flex-14",
+     "ms": 1800,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1200,
+     "transitionMs": 300
+    },
+    {
+     "still": "yawn-19",
+     "ms": 1800,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 1200,
+     "transitionMs": 300
+    }
+   ],
+   "events": [
+    {
+     "gesture": "thumbs_up",
+     "startMs": 1300,
+     "endMs": 2800
+    },
+    {
+     "gesture": "flex",
+     "startMs": 4300,
+     "endMs": 5800
+    },
+    {
+     "gesture": "yawn",
+     "startMs": 7300,
+     "endMs": 8800
+    }
+   ],
+   "expectFires": [
+    "thumbs_up",
+    "flex",
+    "yawn"
+   ],
+   "note": "all three gestures in one take"
+  },
+  {
+   "id": "neutral-60s",
+   "kind": "neutral",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 57,
+   "aspect": 1.5,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 3000,
+     "transitionMs": 0
+    },
+    {
+     "still": "angry-08",
+     "ms": 3000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 3000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-07",
+     "ms": 2500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 3000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-09",
+     "ms": 2500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 4000,
+     "transitionMs": 300,
+     "talk": true
+    },
+    {
+     "still": "angry-10",
+     "ms": 3000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 4000,
+     "transitionMs": 300,
+     "look": true
+    },
+    {
+     "still": "angry-02",
+     "ms": 2500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-11",
+     "ms": 3000,
+     "transitionMs": 300,
+     "talk": true
+    },
+    {
+     "still": "angry-03",
+     "ms": 3000,
+     "transitionMs": 300,
+     "look": true
+    },
+    {
+     "still": "angry-04",
+     "ms": 3000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 4000,
+     "transitionMs": 300,
+     "talk": true
+    },
+    {
+     "still": "angry-07",
+     "ms": 3000,
+     "transitionMs": 300,
+     "look": true
+    },
+    {
+     "still": "angry-08",
+     "ms": 3000,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-09",
+     "ms": 3000,
+     "transitionMs": 300,
+     "talk": true
+    },
+    {
+     "still": "angry-04",
+     "ms": 3000,
+     "transitionMs": 300,
+     "look": true
+    },
+    {
+     "still": "angry-03",
+     "ms": 3000,
+     "transitionMs": 300
+    }
+   ],
+   "events": [],
+   "expectFires": [],
+   "note": "58.5 s of a person at rest, talking (mouth modulated, eyes open) and looking around; zero emotes allowed"
+  },
+  {
+   "id": "hard-negatives-60s",
+   "kind": "hard",
+   "fps": 25,
+   "jitter": 0.004,
+   "seed": 58,
+   "aspect": 1.5,
+   "segments": [
+    {
+     "still": "angry-04",
+     "ms": 1000,
+     "transitionMs": 0
+    },
+    {
+     "still": "angry-01",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-05",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-06",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 800,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-01",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-02",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-03",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 800,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-04",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-05",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-06",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 800,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-07",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-08",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-09",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 800,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-10",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-11",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-12",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 800,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-13",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-14",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "cover_eyes-15",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 800,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-01",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-02",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-03",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 800,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-04",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-05",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-06",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-12",
+     "ms": 800,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-07",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-08",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-09",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-03",
+     "ms": 800,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-10",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-11",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-12",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-08",
+     "ms": 800,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-13",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-14",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "dab-15",
+     "ms": 1500,
+     "transitionMs": 300
+    },
+    {
+     "still": "angry-04",
+     "ms": 800,
+     "transitionMs": 300
+    }
+   ],
+   "events": [],
+   "expectFires": [],
+   "note": "59.3 s: 33 hard negatives (15 cover-eyes, 15 dab, 3 screams) with rests; at most one wrong emote allowed"
+  }
+ ]
+}

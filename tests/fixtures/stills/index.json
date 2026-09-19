@@ -1,0 +1,975 @@
+{
+ "generated": "2026-09-18",
+ "generator": "scripts/extract_still_landmarks.py (mediapipe 0.10.20, IMAGE mode, models from public/mediapipe/models)",
+ "source": "stock-photo screenshots in the Python project's data/raw/gestures/ (not committed: copyrighted)",
+ "positives": [
+  "flex",
+  "thumbs_up",
+  "yawn"
+ ],
+ "negatives": [
+  "angry",
+  "cover_eyes",
+  "dab"
+ ],
+ "kinds": {
+  "ok": "positive still",
+  "partial": "positive still whose gesture the landmarkers cannot see (arm-only crop, no face mesh)",
+  "occluded": "yawn with a hand over the mouth",
+  "neutral": "negative still that looks like a person at rest or talking",
+  "hard": "hard negative (scream, cover-eyes, dab)",
+  "skip": "unusable still, ignored"
+ },
+ "stills": [
+  {
+   "id": "flex-01",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 1,
+   "face": false,
+   "kind": "ok",
+   "note": "profile, one arm"
+  },
+  {
+   "id": "flex-02",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "flex-03",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": "one arm, casual"
+  },
+  {
+   "id": "flex-04",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "ok",
+   "note": "profile, one arm, gym"
+  },
+  {
+   "id": "flex-05",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "flex-06",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 1,
+   "face": false,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "flex-07",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "flex-08",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "flex-09",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "ok",
+   "note": "one arm, looking at the bicep"
+  },
+  {
+   "id": "flex-10",
+   "label": "flex",
+   "expected": "flex",
+   "pose": false,
+   "hands": 1,
+   "face": false,
+   "kind": "partial",
+   "note": "close-up of one arm, no torso or face in frame: pose model finds nothing"
+  },
+  {
+   "id": "flex-11",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": "double biceps, thin subject"
+  },
+  {
+   "id": "flex-12",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "ok",
+   "note": "back view, double biceps"
+  },
+  {
+   "id": "flex-13",
+   "label": "flex",
+   "expected": "flex",
+   "pose": false,
+   "hands": 1,
+   "face": false,
+   "kind": "partial",
+   "note": "close-up of one arm, no torso or face in frame: pose model finds nothing"
+  },
+  {
+   "id": "flex-14",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "flex-15",
+   "label": "flex",
+   "expected": "flex",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-01",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-02",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-03",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": "thumb up beside the head, elbow bent (looks like a raised arm to the flex rule)"
+  },
+  {
+   "id": "thumbs_up-04",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": "thumb up beside the head, elbow bent (looks like a raised arm to the flex rule)"
+  },
+  {
+   "id": "thumbs_up-05",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-06",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-07",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-08",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-09",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-10",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-11",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-12",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-13",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-14",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-15",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-16",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": ""
+  },
+  {
+   "id": "thumbs_up-17",
+   "label": "thumbs_up",
+   "expected": "thumbs_up",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": "two thumbs up at shoulder height, elbows bent"
+  },
+  {
+   "id": "yawn-01",
+   "label": "yawn",
+   "expected": null,
+   "pose": true,
+   "hands": 1,
+   "face": false,
+   "kind": "skip",
+   "note": "screenshot of a Google Images results page (many tiny faces), not a photo"
+  },
+  {
+   "id": "yawn-02",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "ok",
+   "note": "yawn at a desk, hand near the cheek, mouth visible"
+  },
+  {
+   "id": "yawn-03",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "ok",
+   "note": "yawn while stretching both fists up beside the head (also a flex hard negative)"
+  },
+  {
+   "id": "yawn-04",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "occluded",
+   "note": "hand in front of the mouth"
+  },
+  {
+   "id": "yawn-05",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "ok",
+   "note": "yawn, mouth moderately open"
+  },
+  {
+   "id": "yawn-06",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": false,
+   "kind": "partial",
+   "note": "face mesh finds no face in this photo (stretching both arms up (also a flex hard negative)); a yawn cannot be measured, so a miss is tolerated, but any other emote is a false trigger"
+  },
+  {
+   "id": "yawn-07",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": "yawn lying down, hand near the mouth but mouth visible"
+  },
+  {
+   "id": "yawn-08",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "occluded",
+   "note": "hand over the mouth"
+  },
+  {
+   "id": "yawn-09",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "occluded",
+   "note": "hand over the mouth"
+  },
+  {
+   "id": "yawn-10",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": false,
+   "kind": "partial",
+   "note": "face mesh finds no face in this photo (stretching one arm up (also a flex hard negative)); a yawn cannot be measured, so a miss is tolerated, but any other emote is a false trigger"
+  },
+  {
+   "id": "yawn-11",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": false,
+   "kind": "partial",
+   "note": "face mesh finds no face in this photo (hand in front of the mouth, profile); a yawn cannot be measured, so a miss is tolerated, but any other emote is a false trigger"
+  },
+  {
+   "id": "yawn-12",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "ok",
+   "note": "clear yawn"
+  },
+  {
+   "id": "yawn-13",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": "yawn, hand below the mouth, mouth visible"
+  },
+  {
+   "id": "yawn-14",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "occluded",
+   "note": "hand over the mouth"
+  },
+  {
+   "id": "yawn-15",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "occluded",
+   "note": "hand over the mouth"
+  },
+  {
+   "id": "yawn-16",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "occluded",
+   "note": "hand over the mouth"
+  },
+  {
+   "id": "yawn-17",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "ok",
+   "note": "yawn, hand at the chin, mouth visible"
+  },
+  {
+   "id": "yawn-18",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "ok",
+   "note": "clear yawn, glasses"
+  },
+  {
+   "id": "yawn-19",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "ok",
+   "note": "clear yawn"
+  },
+  {
+   "id": "yawn-20",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "occluded",
+   "note": "hand over the mouth"
+  },
+  {
+   "id": "yawn-21",
+   "label": "yawn",
+   "expected": "yawn",
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "occluded",
+   "note": "hand over the mouth"
+  },
+  {
+   "id": "angry-01",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "hard",
+   "note": "scream: mouth wide open, eyes squeezed shut (geometrically a yawn)"
+  },
+  {
+   "id": "angry-02",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "neutral",
+   "note": "shouting across a desk, hands on the desk"
+  },
+  {
+   "id": "angry-03",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "neutral",
+   "note": "arms crossed, frown (rest frame)"
+  },
+  {
+   "id": "angry-04",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "neutral",
+   "note": "staring, no hands visible (rest frame)"
+  },
+  {
+   "id": "angry-05",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "hard",
+   "note": "scream: mouth wide open, eyes narrowed"
+  },
+  {
+   "id": "angry-06",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "hard",
+   "note": "scream: mouth wide open, eyes narrowed"
+  },
+  {
+   "id": "angry-07",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "neutral",
+   "note": "clenched hands at chest height"
+  },
+  {
+   "id": "angry-08",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "neutral",
+   "note": "frown, no hands (rest frame)"
+  },
+  {
+   "id": "angry-09",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "neutral",
+   "note": "fists at the sides"
+  },
+  {
+   "id": "angry-10",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "neutral",
+   "note": "talking with hands at a desk"
+  },
+  {
+   "id": "angry-11",
+   "label": "angry",
+   "expected": null,
+   "pose": false,
+   "hands": 0,
+   "face": true,
+   "kind": "neutral",
+   "note": "close-up frown"
+  },
+  {
+   "id": "angry-12",
+   "label": "angry",
+   "expected": null,
+   "pose": true,
+   "hands": 0,
+   "face": true,
+   "kind": "neutral",
+   "note": "arms crossed (rest frame)"
+  },
+  {
+   "id": "cover_eyes-01",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-02",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-03",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-04",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-05",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 1,
+   "face": false,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-06",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-07",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 1,
+   "face": false,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-08",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-09",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-10",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": false,
+   "hands": 0,
+   "face": false,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-11",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-12",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-13",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-14",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "cover_eyes-15",
+   "label": "cover_eyes",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": true,
+   "kind": "hard",
+   "note": "cover_eyes: both hands on the face, elbows bent"
+  },
+  {
+   "id": "dab-01",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-02",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-03",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 1,
+   "face": true,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-04",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-05",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-06",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-07",
+   "label": "dab",
+   "expected": null,
+   "pose": false,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-08",
+   "label": "dab",
+   "expected": null,
+   "pose": false,
+   "hands": 1,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-09",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-10",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-11",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 1,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-12",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-13",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 1,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-14",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 0,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  },
+  {
+   "id": "dab-15",
+   "label": "dab",
+   "expected": null,
+   "pose": true,
+   "hands": 2,
+   "face": false,
+   "kind": "hard",
+   "note": "dab: face in the elbow, arms diagonal"
+  }
+ ]
+}

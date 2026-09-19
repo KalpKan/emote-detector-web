@@ -1,0 +1,383 @@
+{
+ "_about": "Hand-written ground truth per still (kind + note); scripts/extract_still_landmarks.py merges it into index.json. Kinds: ok: positive still; the rules MUST fire exactly this gesture (gated); partial: positive still whose gesture the landmarkers cannot see (arm-only crop, no face mesh); a miss is tolerated and reported, any OTHER emote is a false trigger (gated); occluded: yawn with a hand over the mouth; must NOT fire another gesture, a miss is tolerated (reported); neutral: negative still that looks like a person at rest or talking; MUST fire nothing (gated); hard: hard negative (scream, cover-eyes, dab); should fire nothing, gated at <= 3 wrong firings across all hard stills; skip: unusable still, ignored",
+ "flex-01": {
+  "kind": "ok",
+  "note": "profile, one arm"
+ },
+ "flex-02": {
+  "kind": "ok",
+  "note": ""
+ },
+ "flex-03": {
+  "kind": "ok",
+  "note": "one arm, casual"
+ },
+ "flex-04": {
+  "kind": "ok",
+  "note": "profile, one arm, gym"
+ },
+ "flex-05": {
+  "kind": "ok",
+  "note": ""
+ },
+ "flex-06": {
+  "kind": "ok",
+  "note": ""
+ },
+ "flex-07": {
+  "kind": "ok",
+  "note": ""
+ },
+ "flex-08": {
+  "kind": "ok",
+  "note": ""
+ },
+ "flex-09": {
+  "kind": "ok",
+  "note": "one arm, looking at the bicep"
+ },
+ "flex-10": {
+  "kind": "partial",
+  "note": "close-up of one arm, no torso or face in frame: pose model finds nothing"
+ },
+ "flex-11": {
+  "kind": "ok",
+  "note": "double biceps, thin subject"
+ },
+ "flex-12": {
+  "kind": "ok",
+  "note": "back view, double biceps"
+ },
+ "flex-13": {
+  "kind": "partial",
+  "note": "close-up of one arm, no torso or face in frame: pose model finds nothing"
+ },
+ "flex-14": {
+  "kind": "ok",
+  "note": ""
+ },
+ "flex-15": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-01": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-02": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-03": {
+  "kind": "ok",
+  "note": "thumb up beside the head, elbow bent (looks like a raised arm to the flex rule)"
+ },
+ "thumbs_up-04": {
+  "kind": "ok",
+  "note": "thumb up beside the head, elbow bent (looks like a raised arm to the flex rule)"
+ },
+ "thumbs_up-05": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-06": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-07": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-08": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-09": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-10": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-11": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-12": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-13": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-14": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-15": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-16": {
+  "kind": "ok",
+  "note": ""
+ },
+ "thumbs_up-17": {
+  "kind": "ok",
+  "note": "two thumbs up at shoulder height, elbows bent"
+ },
+ "yawn-01": {
+  "kind": "skip",
+  "note": "screenshot of a Google Images results page (many tiny faces), not a photo"
+ },
+ "yawn-02": {
+  "kind": "ok",
+  "note": "yawn at a desk, hand near the cheek, mouth visible"
+ },
+ "yawn-03": {
+  "kind": "ok",
+  "note": "yawn while stretching both fists up beside the head (also a flex hard negative)"
+ },
+ "yawn-04": {
+  "kind": "occluded",
+  "note": "hand in front of the mouth"
+ },
+ "yawn-05": {
+  "kind": "ok",
+  "note": "yawn, mouth moderately open"
+ },
+ "yawn-06": {
+  "kind": "partial",
+  "note": "face mesh finds no face in this photo (stretching both arms up (also a flex hard negative)); a yawn cannot be measured, so a miss is tolerated, but any other emote is a false trigger"
+ },
+ "yawn-07": {
+  "kind": "ok",
+  "note": "yawn lying down, hand near the mouth but mouth visible"
+ },
+ "yawn-08": {
+  "kind": "occluded",
+  "note": "hand over the mouth"
+ },
+ "yawn-09": {
+  "kind": "occluded",
+  "note": "hand over the mouth"
+ },
+ "yawn-10": {
+  "kind": "partial",
+  "note": "face mesh finds no face in this photo (stretching one arm up (also a flex hard negative)); a yawn cannot be measured, so a miss is tolerated, but any other emote is a false trigger"
+ },
+ "yawn-11": {
+  "kind": "partial",
+  "note": "face mesh finds no face in this photo (hand in front of the mouth, profile); a yawn cannot be measured, so a miss is tolerated, but any other emote is a false trigger"
+ },
+ "yawn-12": {
+  "kind": "ok",
+  "note": "clear yawn"
+ },
+ "yawn-13": {
+  "kind": "ok",
+  "note": "yawn, hand below the mouth, mouth visible"
+ },
+ "yawn-14": {
+  "kind": "occluded",
+  "note": "hand over the mouth"
+ },
+ "yawn-15": {
+  "kind": "occluded",
+  "note": "hand over the mouth"
+ },
+ "yawn-16": {
+  "kind": "occluded",
+  "note": "hand over the mouth"
+ },
+ "yawn-17": {
+  "kind": "ok",
+  "note": "yawn, hand at the chin, mouth visible"
+ },
+ "yawn-18": {
+  "kind": "ok",
+  "note": "clear yawn, glasses"
+ },
+ "yawn-19": {
+  "kind": "ok",
+  "note": "clear yawn"
+ },
+ "yawn-20": {
+  "kind": "occluded",
+  "note": "hand over the mouth"
+ },
+ "yawn-21": {
+  "kind": "occluded",
+  "note": "hand over the mouth"
+ },
+ "angry-01": {
+  "kind": "hard",
+  "note": "scream: mouth wide open, eyes squeezed shut (geometrically a yawn)"
+ },
+ "angry-02": {
+  "kind": "neutral",
+  "note": "shouting across a desk, hands on the desk"
+ },
+ "angry-03": {
+  "kind": "neutral",
+  "note": "arms crossed, frown (rest frame)"
+ },
+ "angry-04": {
+  "kind": "neutral",
+  "note": "staring, no hands visible (rest frame)"
+ },
+ "angry-05": {
+  "kind": "hard",
+  "note": "scream: mouth wide open, eyes narrowed"
+ },
+ "angry-06": {
+  "kind": "hard",
+  "note": "scream: mouth wide open, eyes narrowed"
+ },
+ "angry-07": {
+  "kind": "neutral",
+  "note": "clenched hands at chest height"
+ },
+ "angry-08": {
+  "kind": "neutral",
+  "note": "frown, no hands (rest frame)"
+ },
+ "angry-09": {
+  "kind": "neutral",
+  "note": "fists at the sides"
+ },
+ "angry-10": {
+  "kind": "neutral",
+  "note": "talking with hands at a desk"
+ },
+ "angry-11": {
+  "kind": "neutral",
+  "note": "close-up frown"
+ },
+ "angry-12": {
+  "kind": "neutral",
+  "note": "arms crossed (rest frame)"
+ },
+ "cover_eyes-01": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-02": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-03": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-04": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-05": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-06": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-07": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-08": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-09": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-10": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-11": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-12": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-13": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-14": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "cover_eyes-15": {
+  "kind": "hard",
+  "note": "cover_eyes: both hands on the face, elbows bent"
+ },
+ "dab-01": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-02": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-03": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-04": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-05": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-06": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-07": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-08": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-09": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-10": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-11": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-12": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-13": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-14": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ },
+ "dab-15": {
+  "kind": "hard",
+  "note": "dab: face in the elbow, arms diagonal"
+ }
+}

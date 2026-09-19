@@ -33,10 +33,25 @@ The size trade-off: self-hosting the WASM runtime and three models costs about 4
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
-npm test           # vitest: 31 fixture tests for the rules, the state machine and the cooldown
-npm run build      # tsc + vite build -> dist/
+npm run dev          # http://localhost:5173
+npm run test:unit    # vitest: 33 fixture tests for the rules, the state machine, the cooldown and the demo replay
+npm run test:corpus  # the consumer-grade detection gate on real landmarks (see below)
+npm test             # both
+npm run report       # precision / recall per gesture, false triggers per minute, fire latency
+npm run build        # tsc + vite build -> dist/
 ```
+
+### Detection quality: how it is measured
+
+The unit tests prove the port; they do not prove detection. That is measured on real MediaPipe landmarks (`tests/fixtures/`, extracted with the same `.task` models this site ships):
+
+- **95 labelled photos** (`tests/fixtures/stills/*.json`, landmarks only, never the photos): 15 flexes, 17 thumbs-ups, 21 yawns, and 42 negatives (angry faces, covering the eyes, dabbing). `labels.json` says which are clear positives, which are yawns behind a hand, which are people at rest, which are hard negatives.
+- **58 ground-truth clips** (`tests/fixtures/clips/clips.json`): scripts that hold those stills for a few seconds with transitions and jitter, synthesised to 25 fps frames by `tests/corpus.ts`; a neutral minute and a hard-negative minute among them. Each clip says which emote must fire and when.
+- **A real-video check** (`scripts/e2e-camera.mjs`): headless Chrome with its fake camera fed by a slideshow of the photos (`python3 scripts/build_e2e_clip.py`, needs the photo folder, output git-ignored), judged against `tests/fixtures/clips/e2e-labels.json`.
+
+The bar (`tests/stills.test.ts`, `tests/clips.test.ts`): per gesture at least 90 % of the clear photos score it and at least 90 % of what scores it is that gesture; every positive clip fires its one emote within 1 s of the pose being reached; a minute of sitting, talking and looking around fires nothing; a minute of covering the eyes, dabbing and screaming fires at most once. The spec with the full table is `docs/reports/emotes-spec.md` in the `KalpKan/portfolio` repo.
+
+**Numbers today (before the hardening rounds; `npm run report`):** photos: flex precision 35 % / recall 100 %, thumbs-up 88 % / 41 %, yawn 63 % / 56 %; clips: 36 of 58 pass, 2 false thumbs-ups in the neutral minute, 12 emotes in the hard-negative minute. So the gate is red and the rules are being reworked; this paragraph is updated with each round.
 
 Environment variables are listed in `.env.example` (names only). Without `VITE_PUBLIC_POSTHOG_KEY` analytics is simply off.
 

@@ -5,3 +5,6 @@ dist
 .vercel
 .env.local
 .env*.local
+
+# End-to-end fake-camera clip built from uncommitted stock photos (scripts/build_e2e_clip.py)
+tests/fixtures/clips/*.mjpeg

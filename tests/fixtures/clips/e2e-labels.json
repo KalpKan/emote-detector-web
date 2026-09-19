@@ -1,0 +1,29 @@
+{
+ "_about": "Ground truth for tests/fixtures/clips/e2e-three-gestures.mjpeg (git-ignored; rebuild with scripts/build_e2e_clip.py). Play it through Chrome's fake camera with scripts/e2e-camera.mjs: every event must fire its emote once within 1000 ms of startMs and nothing else may fire.",
+ "file": "e2e-three-gestures.mjpeg",
+ "fps": 30,
+ "width": 640,
+ "height": 480,
+ "durationMs": 15500,
+ "rest": "angry-04 (a man staring at the camera, no hands)",
+ "events": [
+  {
+   "gesture": "thumbs_up",
+   "still": "thumbs_up-07",
+   "startMs": 2000,
+   "endMs": 4500
+  },
+  {
+   "gesture": "flex",
+   "still": "flex-14",
+   "startMs": 6500,
+   "endMs": 9000
+  },
+  {
+   "gesture": "yawn",
+   "still": "yawn-19",
+   "startMs": 11000,
+   "endMs": 13500
+  }
+ ]
+}
