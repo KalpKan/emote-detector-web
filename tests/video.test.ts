@@ -21,7 +21,7 @@ const byId = (id: string) => judged.find((x) => x.v.id === id)!;
 
 describe("VIDEO-mode landmark clips (real .task models, jittery pose)", () => {
   it("covers the round-2 reels", () => {
-    for (const id of ["tu04x4", "fast", "misses", "flex09x3", "hard", "hard2", "sweep", "tu17x4", "repeat"]) expect(videos.map((v) => v.id), id).toContain(id);
+    for (const id of ["tu04x4", "fast", "misses", "flex09x3", "hard", "hard2", "sweep", "tu17x4", "repeat", "tu04x4-30fps", "flex09x3-30fps"]) expect(videos.map((v) => v.id), id).toContain(id);
   });
 
   it("tu04x4 (D1): a thumbs-up beside the head with the elbow bent is Thumbs Up four times, never Goblin Muscle", { timeout: T }, () => {
@@ -40,6 +40,20 @@ describe("VIDEO-mode landmark clips (real .task models, jittery pose)", () => {
     expect(x.fires).not.toContain("thumbs_up");
   });
 
+  it("tu04x4 at the full 30 fps (round 3): still Thumbs Up four times, never Goblin Muscle", { timeout: T }, () => {
+    // The 10 fps sample hides how often the jittery half-flex reads >= 0.9 on consecutive frames: a flex-average
+    // restart keyed on that step passed the 10 fps reel and fired Goblin Muscle on the real pipeline (and here).
+    const x = byId("tu04x4-30fps");
+    expect(x.j.problems, `fires: ${x.fires}`).toEqual([]);
+    expect(x.j.matched.filter((f) => f.gesture === "thumbs_up").length).toBe(4);
+    expect(x.fires).not.toContain("flex");
+  });
+  it("flex09x3 at the full 30 fps (round 3): Goblin Muscle three times, never Thumbs Up", { timeout: T }, () => {
+    const x = byId("flex09x3-30fps");
+    expect(x.j.problems, `fires: ${x.fires}`).toEqual([]);
+    expect(x.j.matched.map((f) => f.gesture)).toEqual(["flex", "flex", "flex"]);
+    expect(x.fires).not.toContain("thumbs_up");
+  });
   it("fast (D2): thumbs-up 1.2 s -> flex 1.2 s -> yawn 1.5 s back to back fires all three, in order", { timeout: T }, () => {
     const x = byId("fast");
     expect(x.j.problems, `fires: ${x.fires}`).toEqual([]);

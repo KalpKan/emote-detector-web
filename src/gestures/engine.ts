@@ -44,6 +44,10 @@
  *     fist over two or three frames while the hand model already lost sight of it); or
  *   - the flex is RISING: the raw flex score is above the line but still more than
  *     FLEX_SETTLE_MARGIN above its own average (the pose only just found the arm).
+ *     (Restarting the flex average on such a step was tried and reverted: through the
+ *     real pipeline at 20 fps the jittery half-flex beside a thumbs-up, tu04x4, reads
+ *     >= 0.9 on consecutive frames often enough that the restart made it fire Goblin
+ *     Muscle, the round-2 blocker. Only a landing pose restarts the average.)
  * While it is undecided a thumbs-up keeps charging but cannot fire, and it fires
  * only once the flex has been decided for THUMB_SETTLE_MS in a row (a single decided
  * frame between the stale and the rising phases of a landing pose is not a decision);
@@ -136,8 +140,12 @@ export const POSE_STALE_GAP = 0.3;
 export const POSE_JUMP = 0.3;
 /** A raw flex score this far above its own average is still rising: the pose only just found the arm. */
 export const FLEX_SETTLE_MARGIN = 0.2;
-/** A thumbs-up fires only once the flex has been decided for this long in a row (shorter than ON_MS, so an undisputed thumbs-up is not delayed). */
-export const THUMB_SETTLE_MS = 100;
+/**
+ * A thumbs-up fires only once the flex has been decided for this long in a row: four frames at 20 fps,
+ * longer than the one- or two-frame plateau a landing pose shows on its way to the fist (100 ms let
+ * about one hard cut in fifteen through). It adds 50 ms to an undisputed thumbs-up (ON_MS is 150).
+ */
+export const THUMB_SETTLE_MS = 200;
 /** A thumbs-up waits at most this long, in all, for the flex to be decided (stale or moving pose, rising flex); then it fires anyway. */
 export const THUMB_WAIT_MAX_MS = 500;
 
@@ -281,6 +289,7 @@ export class GestureEngine {
     const jump = poseWristJump(input, this.prevPose);
     const poseMoving = jump !== null && jump > POSE_JUMP;
     this.prevPose = input.pose ?? null;
+    const restartFlex = poseLanded;
 
     // Exponential average with a time constant, so it means the same at 8 fps and at 25 fps; the first
     // frame takes the raw values as they are.
@@ -290,7 +299,7 @@ export class GestureEngine {
       for (const g of GESTURES) {
         // A pose that has just caught up with the hands makes every earlier flex reading stale history:
         // the flex average restarts from this frame (the thumbs-up and yawn come from other models).
-        const w = g === "flex" && poseLanded ? 1 : a;
+        const w = g === "flex" && restartFlex ? 1 : a;
         this.smooth.scores[g] += w * (raw.scores[g] - this.smooth.scores[g]);
         const sc = this.smooth.cues[g] as unknown as Record<string, number>;
         const rc = raw.cues[g] as unknown as Record<string, number>;

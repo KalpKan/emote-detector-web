@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { COOLDOWN_MS, EmoteGate, EMOTES, emoteForGesture, GAP_MS } from "../src/emotes";
 import { faceMetrics } from "../src/gestures/face";
-import { fuseScores, type Gesture, GestureEngine, OFF_LINE, OFF_MS, ON_MS, THUMB_WAIT_MAX_MS, SMOOTH_MS } from "../src/gestures/engine";
+import { fuseScores, type Gesture, GestureEngine, OFF_LINE, OFF_MS, ON_MS, SMOOTH_MS, THUMB_SETTLE_MS, THUMB_WAIT_MAX_MS } from "../src/gestures/engine";
 import { POSE } from "../src/gestures/flex";
 import * as fx from "../src/fixtures";
 
@@ -129,17 +129,18 @@ describe("GestureEngine smoothing before the conflict rules (round 2, D1)", () =
       expect(at).toBeGreaterThanOrEqual(THUMB_WAIT_MAX_MS);
       expect(at).toBeLessThanOrEqual(THUMB_WAIT_MAX_MS + 80);
     });
-    it("a thumbs-up without any pose is not delayed", () => {
+    it("a thumbs-up without any pose fires after the settle time (THUMB_SETTLE_MS), never the wait cap", () => {
       const e = new GestureEngine();
       const fires = drive(e, thumbFrame, 0, 1000, 40);
       expect(fires).toHaveLength(1);
-      expect(fires[0]).toBeLessThanOrEqual(ON_MS.thumbs_up + 80);
+      expect(fires[0]).toBeLessThanOrEqual(Math.max(ON_MS.thumbs_up, THUMB_SETTLE_MS) + 80);
     });
-    it("a thumbs-up whose pose agrees with the hands fires at ON_MS, as before", () => {
+    it("a thumbs-up whose pose agrees with the hands fires after the settle time, never the wait cap", () => {
       const e = new GestureEngine();
       const fires = drive(e, { hands: [pointing], pose: fx.poseNeutral(), aspect: 1 }, 0, 1000, 40);
       expect(fires).toHaveLength(1);
-      expect(fires[0]).toBeLessThanOrEqual(ON_MS.thumbs_up + 80);
+      expect(fires[0]).toBeLessThanOrEqual(Math.max(ON_MS.thumbs_up, THUMB_SETTLE_MS) + 80);
+      expect(fires[0]).toBeLessThan(THUMB_WAIT_MAX_MS);
     });
   });
   it("reports every active gesture, not only the winner", () => {
@@ -152,13 +153,18 @@ describe("GestureEngine smoothing before the conflict rules (round 2, D1)", () =
 });
 
 describe("GestureEngine time-based dwell / release (D4)", () => {
-  it("fires once the score has held for ON_MS, at 25 fps and at 8 fps alike", () => {
-    for (const dt of [40, 125]) {
-      const e = new GestureEngine();
-      const fires = drive(e, thumbFrame, 0, 2000, dt);
-      expect(fires, `dt ${dt}`).toHaveLength(1);
-      expect(fires[0]).toBeGreaterThanOrEqual(ON_MS.thumbs_up);
-      expect(fires[0]).toBeLessThan(ON_MS.thumbs_up + dt + 1);
+  it("fires once the score has held for ON_MS, at 25 fps and at 8 fps alike (a thumbs-up also settles for THUMB_SETTLE_MS)", () => {
+    for (const [frame, onMs] of [
+      [flexFrame, ON_MS.flex],
+      [thumbFrame, Math.max(ON_MS.thumbs_up, THUMB_SETTLE_MS)],
+    ] as const) {
+      for (const dt of [40, 125]) {
+        const e = new GestureEngine();
+        const fires = drive(e, frame, 0, 2000, dt);
+        expect(fires, `dt ${dt}`).toHaveLength(1);
+        expect(fires[0]).toBeGreaterThanOrEqual(onMs);
+        expect(fires[0]).toBeLessThan(onMs + dt + 1);
+      }
     }
   });
   it("a gesture held for ten seconds with short dips fires exactly once", () => {
