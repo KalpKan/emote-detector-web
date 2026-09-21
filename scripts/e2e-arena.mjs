@@ -67,6 +67,28 @@ async function run(width, height, { reduced = false, mode = "demo" } = {}) {
   await page.goto(url, { waitUntil: "load" });
   await new Promise((r) => setTimeout(r, 900));
 
+  /*
+    Capture the payload's state AT THE MOMENT IT LANDS, from inside the page. Reading it with a
+    later CDP call is not safe: on a loaded machine the round trip can arrive after the 1.8 s
+    hold, by which point the page has correctly taken `.pop` off again and the animation name
+    reads "none" — a green state reported as a failure.
+  */
+  await page.evaluate(() => {
+    const box = document.getElementById("emote");
+    window.__landing = null;
+    new MutationObserver(() => {
+      if (window.__landing) return;
+      if (box.classList.contains("hidden") || !box.classList.contains("pop")) return;
+      const plate = box.querySelector(".emote-plate");
+      window.__landing = {
+        name: document.getElementById("emote-name").textContent,
+        src: document.getElementById("emote-img").getAttribute("src") ?? "",
+        emoteAnim: getComputedStyle(box).animationName,
+        plateAnim: plate ? getComputedStyle(plate).animationName : "missing",
+      };
+    }).observe(box, { attributes: true, attributeFilter: ["class"] });
+  });
+
   // --- at rest -----------------------------------------------------------------
 
   // P1 audit item: the primary action is on the first screen at 1440, not below the stage.
@@ -133,25 +155,17 @@ async function run(width, height, { reduced = false, mode = "demo" } = {}) {
   check(`${tag}: a HUD mark fills from a live score`, filled);
 
   // M6: the payload lands.
-  const fired = await page
-    .waitForFunction(
-      () => {
-        const e = document.getElementById("emote");
-        return !e.classList.contains("hidden") && e.classList.contains("pop") && !!document.getElementById("emote-name").textContent;
-      },
-      { timeout: 180_000, polling: mode === "camera" ? 500 : 40 },
-    )
-    .then(() => true)
-    .catch(() => false);
-  check(`${tag}: an emote fires and lands on its plate`, fired);
+  const landing = await page
+    .waitForFunction(() => window.__landing, { timeout: 180_000, polling: mode === "camera" ? 500 : 40 })
+    .then((h) => h.jsonValue())
+    .catch(() => null);
+  check(`${tag}: an emote fires and lands on its plate`, landing !== null, landing ? landing.name : "");
 
-  if (fired) {
-    const anim = await page.$eval("#emote", (el) => getComputedStyle(el).animationName);
-    check(`${tag}: emote animation is "${reduced ? "fade-in" : "land"}"`, anim === (reduced ? "fade-in" : "land"), anim);
-    const plateAnim = await page.$eval(".emote-plate", (el) => getComputedStyle(el).animationName);
-    check(`${tag}: plate is ${reduced ? "static" : "animated"}`, reduced ? plateAnim === "none" : plateAnim === "plate", plateAnim);
-    const payload = await page.$eval("#emote-img", (el) => el.getAttribute("src") ?? "");
-    check(`${tag}: the payload is still Supercell's own art, unchanged`, payload.startsWith("/emotes/"), payload);
+  if (landing) {
+    const want = reduced ? "fade-in" : "land";
+    check(`${tag}: emote animation is "${want}"`, landing.emoteAnim === want, landing.emoteAnim);
+    check(`${tag}: plate is ${reduced ? "static" : "animated"}`, landing.plateAnim === (reduced ? "none" : "plate"), landing.plateAnim);
+    check(`${tag}: the payload is still Supercell's own art, unchanged`, landing.src.startsWith("/emotes/"), landing.src);
   }
 
   // --- reduced motion lands on complete static states ---------------------------
