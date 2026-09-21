@@ -193,11 +193,26 @@ async function run(width, height, { reduced = false, mode = "demo" } = {}) {
     check(`${tag}: HUD strip has no transition`, zero(await page.$eval("#hud", (el) => getComputedStyle(el).transitionDuration)));
     check(`${tag}: HUD fill snaps`, zero(await page.$eval(".hud-fill", (el) => getComputedStyle(el).transitionDuration)));
     check(`${tag}: gesture bars snap`, zero(await page.$eval(".fill", (el) => getComputedStyle(el).transitionDuration)));
+    // The beam rule only exists on `.is-almost`, so reading ::after on a resting cell returns
+    // "none" whatever the media query says — an assertion that cannot fail. Put the class on.
     const beamAnim = await page.evaluate(() => {
       const cell = document.querySelector(".hud-cell");
-      return getComputedStyle(cell.querySelector(".hud-mark"), "::after").animationName;
+      cell.classList.add("is-almost");
+      const name = getComputedStyle(cell.querySelector(".hud-mark"), "::after").animationName;
+      cell.classList.remove("is-almost");
+      return name;
     });
     check(`${tag}: the beam does not travel`, beamAnim === "none", beamAnim);
+
+    // And the resting state under reduce must be the RESTING state, not the running one: the
+    // scoreboard stays out of the arena until a session starts, or it duplicates the triptych.
+    const restingHudY = await page.evaluate(() => {
+      const m = getComputedStyle(document.getElementById("hud")).transform;
+      if (m === "none") return 0;
+      const parts = m.replace(/^matrix\(|\)$/g, "").split(",").map(Number);
+      return parts.length === 6 ? parts[5] : Number.NaN;
+    });
+    check(`${tag}: HUD strip is out of the arena at rest`, restingHudY > 1, `translateY=${restingHudY}`);
   }
 
   check(`${tag}: console clean`, consoleErrors.length === 0, consoleErrors.join(" | "));

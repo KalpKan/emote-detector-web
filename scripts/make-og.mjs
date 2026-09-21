@@ -15,7 +15,7 @@ const font = readFileSync(resolve(root, "public/fonts/fredoka-700-latin.woff2"))
 // The three marks, copied from index.html's <symbol> sprite. One stroke system.
 const MARKS = {
   thumbs_up: `<path d="M13 13.8 17.2 4.6a3.6 3.6 0 0 1 3.4 3.6v4.4h4.9a2.6 2.6 0 0 1 2.56 3.05l-1.45 8.2a2.8 2.8 0 0 1-2.76 2.35H13Z"/><rect x="4" y="13.8" width="7.6" height="12.4" rx="2.4"/>`,
-  flex: `<path d="M18.4 4.2h2.6a3.6 3.6 0 0 1 3.6 3.6v17a3.2 3.2 0 0 1-3.2 3.2H8a3.5 3.5 0 0 1-3.5-3.5v-6.1C4.5 14.2 11 11.4 18.4 12.4Z"/><path d="M18.6 10.4h6.8"/><path d="M9.2 23.8c1.4-3.6 4.4-5.6 8.4-5.8"/>`,
+  flex: `<path d="M17.8 4.4h3.4a3.4 3.4 0 0 1 3.4 3.4v17a3.2 3.2 0 0 1-3.2 3.2H6.2a2.6 2.6 0 0 1-2.6-2.6v-2.6C3.6 16.2 10 11.8 17.8 12.8Z"/><path d="M18 10.6h6.4"/><path d="M6.6 24.6c1.8-4.6 5.8-7 11-6.6"/>`,
   yawn: `<circle cx="16" cy="16" r="12.6"/><path d="M8.4 12.1q2.5 2.5 5 0"/><path d="M18.6 12.1q2.5 2.5 5 0"/><ellipse cx="16" cy="21.6" rx="4.8" ry="5.6"/>`,
 };
 

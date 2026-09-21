@@ -722,7 +722,8 @@ h2 {
 .gesture-list li {
   --cut: var(--cut-md);
   display: grid;
-  grid-template-columns: auto 40px 1fr auto;
+  /* Three tracks at rest; `.is-live` adds the fourth for the percentage. */
+  grid-template-columns: auto 40px 1fr;
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
@@ -842,15 +843,25 @@ h2 {
   margin-top: 8px;
 }
 
+/*
+  Multicol, not grid: the four sub-points are very different lengths, and a grid either stretches
+  them (a void the length of Arbitration) or leaves ragged holes. Columns balance their own
+  heights.
+*/
 .how-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  /* Each panel hugs its own prose. Stretching them left a void the length of Arbitration. */
-  align-items: start;
+  columns: 2;
+  column-gap: 12px;
+}
+
+@media (max-width: 620px) {
+  .how-grid {
+    columns: 1;
+  }
 }
 
 .how-grid article {
+  break-inside: avoid;
+  margin-bottom: 12px;
   --cut: var(--cut-md);
   padding: 14px 16px;
   border: 1px solid var(--line);
@@ -968,21 +979,28 @@ html.reveal-ready [data-reveal].is-in {
   white-space: nowrap;
 }
 
+/*
+  A link, so it is cyan, not gold: outside the arena gold is the primary button and the "almost"
+  state only. It moves on `transform`, never on `top` — animation-systems puts layout properties
+  on the avoid list.
+*/
 .skip-link {
   position: absolute;
   left: 16px;
-  top: -64px;
+  top: 16px;
   z-index: 10;
   padding: 12px 18px;
-  background: var(--accent);
-  color: var(--accent-ink);
+  border: 1px solid var(--cyan);
+  background: var(--bg-elev);
+  color: var(--cyan);
   font-weight: 700;
   text-decoration: none;
-  transition: top var(--dur-state) var(--ease);
+  transform: translateY(-96px);
+  transition: transform var(--dur-state) var(--ease);
 }
 
 .skip-link:focus-visible {
-  top: 16px;
+  transform: translateY(0);
 }
 
 /*
@@ -1024,9 +1042,13 @@ html.reveal-ready [data-reveal].is-in {
     transition: none;
   }
 
-  /* M3: the scoreboard is simply there, at rest and while running. */
+  /*
+    M3: no slide. `.hud` keeps translateY(101%) at rest and `.stage.running .hud` puts it at 0,
+    so each state lands instantly on its OWN complete final state. Forcing translateY(0) here
+    showed the scoreboard at rest, duplicating the triptych above it — the running state while
+    at rest is not a complete final state, it is the wrong one.
+  */
   .hud {
-    transform: translateY(0);
     transition: none;
   }
 
@@ -1079,5 +1101,11 @@ html.reveal-ready [data-reveal].is-in {
 
   .skip-link {
     transition: none;
+  }
+
+  .hud-mark,
+  .arena,
+  .button {
+    transition-duration: 0ms;
   }
 }

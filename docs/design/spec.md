@@ -160,8 +160,8 @@ exactly one keyframe.
 | M2 | Section entrance (gesture rows, how-it-works points, timings) on scroll | **Attention** — guides the eye down a long explanatory page, once | 520 ms, rise 16 px, stagger 60 ms, `--ease` | Observer never installed, and the `reveal-ready` class that hides them is never added; every element is at its final state on paint. |
 | M3 | Arena "power on": the gold frame edge brightens and the HUD strip rises from the bottom edge when a session starts | **Feedback + continuity** — confirms the camera or demo is actually live | 200 ms, `--ease` | HUD strip is present at its final position instantly; the edge changes colour with no transition. |
 | M4 | HUD mark liquid fill tracking the live score | **It is the data.** The meters ARE the arena's scoreboard | 120 ms linear (a readout tracks, it does not ease) | Fill still updates — it is information, not decoration — but with `transition: none`, so it snaps. |
-| M5 | "Almost there" edge beam on the leading HUD mark while `0.35 < score < 0.5` | **Attention** — the app already computes this and already says what to change; the beam makes it legible at arm's length | 3.2 s cycle, opacity 0.55, `--ease` fade-in | Static 1 px gold border + gold mark tint. A complete state, not a shortened animation. |
-| M6 | Emote landing on its molded plate | **Feedback** — the payload is thrown, not faded in. The one hero moment | 340 ms, `--ease-land`; rim flash 400 ms | Emote appears at full scale with a 120 ms opacity fade. Plate static, no flash. |
+| M5 | "Almost there" edge beam on the leading HUD mark while `0.35 < score < 0.5` | **Attention** — the app already computes this and already says what to change; the beam makes it legible at arm's length | 3.2 s cycle, linear, opacity 0.6, appears instantly (no fade-in) | Static 1 px gold border + gold mark tint. A complete state, not a shortened animation. |
+| M6 | Emote landing on its molded plate | **Feedback** — the payload is thrown, not faded in. The one hero moment | 340 ms, `--ease-land`, emote and plate on one beat | Emote appears at full scale with a 120 ms opacity fade; the plate does not move. |
 | M7 | Emote leaving | **Continuity** | 180 ms opacity, `--ease-exit` | 120 ms opacity fade. |
 | M8 | Button press / hover | **Feedback** | 140 ms, `--ease` | Colour and border change only; no translate. |
 
@@ -169,9 +169,17 @@ exactly one keyframe.
 state-gated on a real measured score, in front of nothing, one at a time. At rest the page is
 completely still.
 
-**Performance.** Only `transform`, `opacity`, `clip-path` (three 44 px marks) and `border-color`
-animate. No animated blur, no animated shadow, no per-frame layout measurement. The camera loop
-is already capped at ~25 fps by `MIN_FRAME_MS`; nothing here adds work to it.
+**Performance.** What animates: `transform` and `opacity` everywhere that moves; `clip-path` on
+the three HUD marks (40 px, 28 px below 560 px); the colour properties `background`,
+`border-color` and `color` on the buttons, the arena edge and the HUD marks; and the registered
+custom property `--beam-angle` on the one gated beam. No layout property animates anywhere — the
+skip link moves on `transform`, not `top`. No animated blur, no animated shadow, no per-frame
+layout measurement.
+
+The one cost worth naming honestly: while a single score sits in the almost band, M5 repaints a
+masked conic gradient at frame rate over the live video, alongside the three MediaPipe models.
+It is one small element, one at a time, gated on a real measurement, and it stops the moment the
+gesture fires or falls away — but it is not free. Everything else on this page is idle at rest.
 
 ---
 

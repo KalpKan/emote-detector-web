@@ -27,7 +27,7 @@ it was the best thing about it. What changed is that every colour now has exactl
 | `--line` | `#2f2246` | Every 1 px rule and panel edge that is not the arena. |
 | `--accent` | `#ffc43d` | **Gold is the arena**: its frame, its corner brackets, its floor-light, the marks it shows at rest, and any gesture firing or about to fire inside it. Outside the arena, only the primary button that starts a session and the "almost" state on a gesture row. Never a section heading, an eyebrow or a numeral. |
 | `--accent-ink` | `#2a1c00` | Text on gold. 10.45:1. |
-| `--cyan` | `#66e3ff` | **Links, and the focus ring. Nothing else.** |
+| `--cyan` | `#66e3ff` | **Links, the skip link, and the focus ring. Nothing else.** |
 
 **`--pink` was deleted.** It had tinted the "almost" border (now gold, because gold is that state's
 colour) and the face landmark dots (now muted, because the overlay is machinery). A second accent
@@ -101,10 +101,11 @@ third and a radial floor-light coming up from beneath it. That light is the only
 and it is concentrated there; the purple is never washed. When a session starts the frame's edge
 brightens and the furniture steps back behind the picture.
 
-**The one rounded thing on the page is the plate**, at 20 px, and that is the hierarchy
-`corner-diagonals` asks for when rounded and chamfered geometry share a surface: everything that
-is *interface* is chamfered; the single *physical object* that gets thrown into the arena is
-molded. If a second rounded surface appears, that distinction has been lost.
+**Two rounded surfaces, and only two**: the plate at 20 px and the beam ring at 10 px. That is
+the hierarchy `corner-diagonals` asks for when rounded and chamfered geometry share a page —
+everything that is *interface* is chamfered; the *physical object* thrown into the arena is
+molded, and the halo that traces a mark follows the mark's own soft shape rather than the
+interface's. A third rounded surface means the distinction has been lost.
 
 **One skeuomorphic object** (`skeuomorphic-ui`): the plate the emote lands on. Soft vertical
 gradient, a 1 px reflective gradient border, stacked outer elevation plus inset carved depth, a
@@ -155,9 +156,9 @@ stagger 60 ms (35 ms for hero words).
 |---|---|---|---|
 | M1 | h1 words rise through a mask, on load | hierarchy | Never split. Plain h1, no motion. |
 | M2 | Gesture rows, how-it-works panels and the timings list rise once on scroll | attention | Complete on first paint. |
-| M3 | Arena edge brightens, HUD strip rises out of the bottom edge | feedback + continuity | Both at their final state instantly. |
+| M3 | Arena edge brightens, HUD strip rises out of the bottom edge | feedback + continuity | No slide and no colour transition: at rest the strip is out of the arena, once running it is in, each state complete on its own. |
 | M4 | HUD marks fill with gold from the live score | it is the data | Still updates; snaps instead of tracking. |
-| M5 | A travelling gold edge beam on one HUD mark while `0.35 < score < 0.5` | attention | A complete static gold border. |
+| M5 | A travelling gold edge beam on one HUD mark while `0.35 < score < 0.5` (3.2 s, linear, opacity 0.6, no fade-in) | attention | A complete static gold border. |
 | M6 | The emote lands on its plate | feedback | Full scale, 120 ms opacity fade, no overshoot, plate static. |
 | M7 | The emote leaves | continuity | 120 ms fade. |
 | M8 | Button press and hover | feedback | Colour only, no translate. |
@@ -165,9 +166,16 @@ stagger 60 ms (35 ms for hero words).
 **No perpetual loop runs behind content.** M5 is the only looping animation on the page, and it is
 gated on a real measured score, drawn in front of nothing, one at a time. At rest the page is still.
 
-Only `transform`, `opacity`, `clip-path` (three 44 px marks) and `border-color` animate. No
-animated blur, no animated shadow, no per-frame layout measurement, no smooth-scroll engine, no
-WebGL, no particle system — the page shares its main thread with three MediaPipe models.
+What animates: `transform` and `opacity` everywhere that moves; `clip-path` on the three HUD
+marks (40 px, 28 px below 560 px); the colour properties `background`, `border-color` and `color`
+on the buttons, the arena edge and the HUD marks; and the registered custom property
+`--beam-angle` on the one gated beam. **No layout property animates** — the skip link moves on
+`transform`, not `top`. No animated blur, no animated shadow, no per-frame layout measurement, no
+smooth-scroll engine, no WebGL, no particle system.
+
+M5 is the one thing here that is not free: while a score sits in the almost band it repaints a
+masked conic gradient at frame rate over the live video, next to three MediaPipe models. One
+small element, one at a time, gated on a real measurement, gone the moment the gesture fires.
 
 ---
 

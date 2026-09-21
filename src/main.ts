@@ -32,7 +32,7 @@ const demoCaption = $<HTMLDivElement>("demo-caption");
 const ctx = canvas.getContext("2d")!;
 /** The arena's scoreboard along the bottom edge of the stage. Draws only what the engine computes. */
 const hud = new Hud($<HTMLDivElement>("hud"));
-const gestureList = document.querySelector<HTMLUListElement>(".gesture-list");
+const gestureList = $<HTMLUListElement>("gesture-list");
 
 const meters: Record<Gesture, { bar: HTMLDivElement; value: HTMLSpanElement; hint: HTMLSpanElement; idle: string }> = {
   flex: { bar: $("bar-flex"), value: $("val-flex"), hint: $("hint-flex"), idle: "" },
@@ -233,7 +233,7 @@ function setRunning(running: boolean, kind: Source["kind"] | null): void {
   demoCaption.classList.toggle("hidden", kind !== "demo");
   // P3 audit items: no dead "Stop" and no three identical 0 % rows before anything has started.
   stopBtn.classList.toggle("is-idle-hidden", !running);
-  gestureList?.classList.toggle("is-live", running);
+  gestureList.classList.toggle("is-live", running);
 }
 
 async function ensureModels(): Promise<Landmarkers> {
