@@ -13,6 +13,7 @@
     "test:corpus": "vitest run --pool=forks --maxWorkers=1 tests/stills.test.ts tests/clips.test.ts tests/video.test.ts",
     "report": "vite-node scripts/eval-corpus.ts",
     "e2e": "node scripts/e2e-camera.mjs",
+    "e2e:arena": "node scripts/e2e-arena.mjs",
     "typecheck": "tsc"
   },
   "dependencies": {

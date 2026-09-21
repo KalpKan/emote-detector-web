@@ -39,7 +39,12 @@ npm run test:corpus  # the consumer-grade detection gate on real landmarks: stil
 npm test             # both
 npm run report       # precision / recall per gesture, false triggers per minute, fire latency
 npm run build        # tsc + vite build -> dist/
+npm run e2e          # detection gate: headless Chrome + fake camera, judged against the labelled clip
+npm run e2e:arena    # design gate: the arena's visible contract at 1440, 390 and under reduced motion
 ```
+
+Both `e2e` scripts need a built page being served (`npm run build && npx vite preview --port 4173`)
+and Chrome at `CHROME_PATH` (it defaults to the Mac location).
 
 ### Detection quality: how it is measured
 
@@ -60,13 +65,38 @@ Two labels changed this round, each re-checked against its photo: `yawn-13` is n
 
 Environment variables are listed in `.env.example` (names only). Without `VITE_PUBLIC_POSTHOG_KEY` analytics is simply off.
 
+## Design
+
+The interface is the **"Your own arena"** direction from the portfolio's app design brief
+(`KalpKan/portfolio` → `docs/design/app-directions.md` § 6): an original purple-and-gold cartoon
+arena, drawn here in SVG and CSS.
+
+- `docs/design/spec.md` — the locked design contract, written before any code (MengTo's
+  `design-first-ui-prompting`), including the motion table: every animation, the reason it exists,
+  and the complete static state it lands on under `prefers-reduced-motion: reduce`.
+- `docs/design/plan.md` — how it was built, task by task, with the verification log.
+- `docs/design/DESIGN.md` — the design system as shipped: tokens, type roles, the one chamfer
+  family, the one skeuomorphic object, the motion tokens, and the rules for extending it.
+
+Two things are worth knowing before changing anything here:
+
+1. **The three gesture marks are this app's own.** A thumb, a flexed arm and a yawning face, drawn
+   for this page in one stroke system and used in the resting arena, the HUD scoreboard, the
+   gesture rows and the favicon.
+2. **Supercell's emote art and sounds are the payload, never the chrome.** They appear only when a
+   gesture fires, credited in the footer under the Fan Content Policy. They are not the interface's
+   vocabulary, not a logo, and not in the favicon.
+
+The gesture rules, the dwell engine and the corpus gates were not touched by the redesign;
+`src/gestures/`, `src/emotes.ts`, `src/hints.ts` and `src/demo.ts` are unchanged.
+
 ## Analytics
 
 PostHog (`posthog-js`, imported after the page has loaded) through the first-party `/ingest` rewrite in `vercel.json`, cookieless (`persistence: "memory"`), with all inputs masked. Three custom events, none carrying frames or landmarks: `session_started {source}`, `emote_fired {emote}`, `demo_video_played`.
 
 ## Credits and legal
 
-Clash Royale emote art and sounds are © Supercell and are used under [Supercell's Fan Content Policy](https://supercell.com/en/fan-content-policy/). **This project is not affiliated with, endorsed, sponsored, or specifically approved by Supercell and Supercell is not responsible for it.** It is non-commercial: no ads, no payments, no affiliate links. Landmark models and runtime: [MediaPipe Tasks](https://ai.google.dev/edge/mediapipe/solutions/vision) (Apache 2.0). Code in this repo: MIT.
+Clash Royale emote art and sounds are © Supercell and are used under [Supercell's Fan Content Policy](https://supercell.com/en/fan-content-policy/). **This project is not affiliated with, endorsed, sponsored, or specifically approved by Supercell and Supercell is not responsible for it.** It is non-commercial: no ads, no payments, no affiliate links. Landmark models and runtime: [MediaPipe Tasks](https://ai.google.dev/edge/mediapipe/solutions/vision) (Apache 2.0). Display typeface: [Fredoka](https://fonts.google.com/specimen/Fredoka) 700, self-hosted from `public/fonts/`, under the SIL Open Font License 1.1 (`public/fonts/OFL.txt`). The three gesture marks in the interface were drawn for this project. Code in this repo: MIT.
 
 ---
 

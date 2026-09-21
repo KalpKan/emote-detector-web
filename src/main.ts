@@ -6,7 +6,9 @@ import { faceMetrics } from "./gestures/face";
 import { GESTURES, GestureEngine, type FrameResult, type Gesture, poseGap, rawScores } from "./gestures/engine";
 import type { Pt } from "./gestures/geometry";
 import { HintHold, hintText, type ShownHint, stageAspect } from "./hints";
+import { Hud } from "./hud";
 import { loadLandmarkers, type Landmarkers } from "./landmarkers";
+import { initReveals } from "./reveal";
 
 const $ = <T extends HTMLElement>(id: string): T => {
   const el = document.getElementById(id);
@@ -28,6 +30,9 @@ const emoteImg = $<HTMLImageElement>("emote-img");
 const emoteName = $<HTMLSpanElement>("emote-name");
 const demoCaption = $<HTMLDivElement>("demo-caption");
 const ctx = canvas.getContext("2d")!;
+/** The arena's scoreboard along the bottom edge of the stage. Draws only what the engine computes. */
+const hud = new Hud($<HTMLDivElement>("hud"));
+const gestureList = document.querySelector<HTMLUListElement>(".gesture-list");
 
 const meters: Record<Gesture, { bar: HTMLDivElement; value: HTMLSpanElement; hint: HTMLSpanElement; idle: string }> = {
   flex: { bar: $("bar-flex"), value: $("val-flex"), hint: $("hint-flex"), idle: "" },
@@ -119,6 +124,7 @@ function updateMeters(scores: Record<Gesture, number>, active: Gesture | null): 
     meters[g].value.textContent = `${pct}%`;
     meters[g].bar.parentElement!.classList.toggle("active", active === g);
   }
+  hud.update(scores, active);
 }
 
 /**
@@ -211,6 +217,9 @@ function setRunning(running: boolean, kind: Source["kind"] | null): void {
   stage.classList.toggle("camera", kind === "camera");
   placeholder.classList.toggle("hidden", running);
   demoCaption.classList.toggle("hidden", kind !== "demo");
+  // P3 audit items: no dead "Stop" and no three identical 0 % rows before anything has started.
+  stopBtn.classList.toggle("is-idle-hidden", !running);
+  gestureList?.classList.toggle("is-live", running);
 }
 
 async function ensureModels(): Promise<Landmarkers> {
@@ -286,6 +295,7 @@ function stop(): void {
   source = null;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   updateMeters({ flex: 0, thumbs_up: 0, yawn: 0 }, null);
+  hud.reset();
   shownHint = null;
   hintHold.reset();
   for (const g of GESTURES) {
@@ -310,5 +320,10 @@ if (!navigator.mediaDevices?.getUserMedia) {
   startCameraBtn.disabled = true;
   setStatus("This browser has no camera API. Press “Play demo”.");
 }
+
+// The entrance animations run as soon as the DOM is parsed (this is a deferred module), so a
+// [data-reveal] block is never left invisible waiting on the load event. Under
+// prefers-reduced-motion: reduce this installs nothing at all.
+initReveals();
 
 window.addEventListener("load", () => initAnalytics());

@@ -1,4 +1,15 @@
+/*
+  "Your own arena" — an original purple-and-gold cartoon arena, drawn here in SVG and CSS.
+  Design system: docs/design/DESIGN.md. Spec and motion contract: docs/design/spec.md.
+
+  MengTo skills: funky-purple-container-tech (the container-led system), corner-diagonals (the
+  shape language), skeuomorphic-ui (one object: the emote plate), beautiful-shadows (elevation,
+  tinted to the purple ground), beam-glow-states (M5), animation-systems (every token below),
+  masked-reveal (M1), animation-on-scroll (M2), number-details (the 01/02/03 numerals).
+*/
+
 :root {
+  /* Palette kept wholesale from the live app. Pink is deleted: it had no role. */
   --bg: #120b1f;
   --bg-elev: #1c1230;
   --bg-stage: #0b0714;
@@ -8,9 +19,50 @@
   --accent: #ffc43d;
   --accent-ink: #2a1c00;
   --cyan: #66e3ff;
-  --pink: #ff7ab6;
-  --radius: 14px;
+
+  /* corner-diagonals: one polygon family, three sizes. */
+  --cut-sm: 8px;
+  --cut-md: 14px;
+  --cut-lg: 22px;
+
+  /* animation-systems: one easing family, plus one deliberate landing curve. */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-land: cubic-bezier(0.2, 1.25, 0.35, 1);
+  --dur-micro: 140ms;
+  --dur-state: 200ms;
+  --dur-pop: 340ms;
+  --dur-exit: 180ms;
+  --dur-section: 520ms;
+  --dur-hero: 700ms;
+  --stagger: 60ms;
+
+  /* beautiful-shadows, tinted to the purple ground rather than pure black. */
+  --shadow-sm: 0 2px 3px -1px rgba(6, 2, 14, 0.5), 0 0 0 1px rgba(47, 34, 70, 0.9);
+  --shadow-lg: 0 18px 38px rgba(6, 2, 14, 0.55);
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: "Fredoka", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  --gutter: 20px;
   color-scheme: dark;
+}
+
+@font-face {
+  font-family: "Fredoka";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/fredoka-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F,
+    U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@property --beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
 }
 
 * {
@@ -22,7 +74,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 16px/1.55 var(--sans);
   -webkit-text-size-adjust: 100%;
 }
 
@@ -30,44 +82,214 @@ a {
   color: var(--cyan);
 }
 
-.app {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 24px 16px 40px;
+.mark-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
+
+.app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px var(--gutter) 48px;
+}
+
+@media (min-width: 720px) {
+  :root {
+    --gutter: 40px;
+  }
+}
+
+/* ---------------------------------------------------------------- shape language */
+
+/*
+  corner-diagonals: every chamfered surface uses this one mirrored polygon (top-left and
+  bottom-right), so background, border and hit area share a silhouette.
+*/
+.cut {
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+}
+
+/* ---------------------------------------------------------------- the marks */
+
+.mark {
+  width: 40px;
+  height: 40px;
+  display: block;
+  color: inherit;
+  flex: none;
+}
+
+/* ---------------------------------------------------------------- masthead */
 
 .masthead {
-  margin-bottom: 20px;
-}
-
-.eyebrow {
-  margin: 0 0 4px;
-  color: var(--accent);
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  margin-bottom: 22px;
 }
 
 h1 {
-  margin: 0 0 8px;
-  font-size: clamp(1.9rem, 6vw, 2.6rem);
-  line-height: 1.1;
+  margin: 0;
+  font: 700 clamp(30px, 6vw, 44px) / 1.05 var(--display);
+  letter-spacing: -0.01em;
 }
 
-h2 {
-  font-size: 1.15rem;
-  margin: 0 0 10px;
+/* masked-reveal (M1): words rise through a mask. Never applied under reduce. */
+h1 .word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em;
 }
 
-.lede,
-.note,
-.status,
-.hint {
+h1 .word {
+  display: inline-block;
+  transform: translateY(110%);
+  animation: word-rise var(--dur-hero) var(--ease) forwards;
+  animation-delay: calc(var(--i) * 35ms);
+}
+
+@keyframes word-rise {
+  to {
+    transform: translateY(0);
+  }
+}
+
+.eyebrow {
+  margin: 8px 0 0;
   color: var(--muted);
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .lede {
-  margin: 0;
+  margin: 12px 0 0;
+  max-width: 62ch;
+  font-size: 17px;
+  color: var(--muted);
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+}
+
+/* ---------------------------------------------------------------- controls */
+
+.controls {
+  margin-bottom: 16px;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.button {
+  --cut: var(--cut-sm);
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 12px 20px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--text);
+  font: 600 16px/1 var(--sans);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+  transition:
+    background var(--dur-micro) var(--ease),
+    border-color var(--dur-micro) var(--ease),
+    transform var(--dur-micro) var(--ease);
+}
+
+.button:hover:not(:disabled) {
+  border-color: var(--muted);
+  background: #241640;
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.button.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.button.primary:hover:not(:disabled) {
+  background: #ffd167;
+  border-color: #ffd167;
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* P3 audit item: no dead control in the resting control group. */
+.button.is-idle-hidden {
+  display: none;
+}
+
+.status {
+  margin: 12px 0 0;
+  min-height: 1.5em;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- the arena */
+
+/*
+  funky-purple-container-tech: the framed shell that drives the page's hierarchy. One 1px
+  gold-tinted edge, one contact shadow, a static radial floor-light under the video. The glow
+  is concentrated here rather than washing the page.
+*/
+.arena {
+  --cut: var(--cut-lg);
+  position: relative;
+  padding: 1px;
+  background: linear-gradient(
+    150deg,
+    rgba(255, 196, 61, 0.85),
+    rgba(255, 196, 61, 0.3) 46%,
+    rgba(255, 196, 61, 0.55)
+  );
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+  filter: drop-shadow(var(--shadow-lg));
+  transition: background var(--dur-state) var(--ease);
+}
+
+/* M3: the arena's edge lights up when a session actually starts. */
+.arena:has(.stage.running) {
+  background: linear-gradient(150deg, var(--accent), rgba(255, 196, 61, 0.62) 46%, rgba(255, 196, 61, 0.85));
 }
 
 .stage {
@@ -75,13 +297,66 @@ h2 {
   width: 100%;
   /* The page sets the real value from the stream (a portrait phone gives 480 / 640); 4:3 until then. */
   aspect-ratio: 4 / 3;
-  max-height: 70vh;
+  /* P1 audit item: the stage never pushes the controls off the first screen. */
+  max-height: min(60vh, 520px);
   margin-inline: auto;
   container-type: size;
-  background: var(--bg-stage);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  background:
+    radial-gradient(120% 60% at 50% 104%, rgba(255, 196, 61, 0.13), transparent 64%),
+    var(--bg-stage);
+  clip-path: inherit;
   overflow: hidden;
+}
+
+/*
+  The arena's own furniture, drawn in CSS: four corner brackets and a floor rule with the
+  floor-light beneath it. funky-purple-container-tech's corner markers and concentrated
+  lighting, so the stage reads as a housing rather than as an empty black rectangle.
+*/
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  z-index: 0;
+  pointer-events: none;
+  --b: linear-gradient(var(--accent), var(--accent));
+  background:
+    var(--b) left 0 top 0 / 22px 2px no-repeat,
+    var(--b) left 0 top 0 / 2px 22px no-repeat,
+    var(--b) right 0 top 0 / 22px 2px no-repeat,
+    var(--b) right 0 top 0 / 2px 22px no-repeat,
+    var(--b) left 0 bottom 0 / 22px 2px no-repeat,
+    var(--b) left 0 bottom 0 / 2px 22px no-repeat,
+    var(--b) right 0 bottom 0 / 22px 2px no-repeat,
+    var(--b) right 0 bottom 0 / 2px 22px no-repeat;
+  opacity: 0.4;
+}
+
+/* The floor: one hairline across the lower third with the light coming up from under it. */
+.stage::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16%;
+  height: 1px;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 196, 61, 0.28) 18%, rgba(255, 196, 61, 0.28) 82%, transparent);
+}
+
+/* Once there is a picture in the arena, the furniture steps back behind it. */
+.stage::before,
+.stage::after {
+  transition: opacity var(--dur-state) var(--ease);
+}
+
+.stage.running::before {
+  opacity: 0.22;
+}
+
+.stage.running::after {
+  opacity: 0;
 }
 
 .stage video,
@@ -106,20 +381,48 @@ h2 {
   display: block;
 }
 
-
+/* P1 audit item: the resting arena shows what the app is for. */
 .placeholder {
   position: absolute;
   inset: 0;
   display: grid;
-  place-items: center;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(14px, 4cqh, 28px);
   padding: 16px;
   text-align: center;
   color: var(--muted);
 }
 
+.triptych {
+  display: flex;
+  gap: clamp(18px, 8cqw, 56px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.triptych li {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  color: var(--accent);
+}
+
+.triptych .mark {
+  width: clamp(34px, 13cqh, 56px);
+  height: clamp(34px, 13cqh, 56px);
+}
+
+.triptych span {
+  font: 700 clamp(12px, 3cqh, 15px) / 1 var(--display);
+  color: var(--text);
+}
+
 .placeholder p {
   margin: 0;
-  max-width: 28ch;
+  max-width: 34ch;
+  font-size: 14px;
 }
 
 .demo-caption {
@@ -127,43 +430,76 @@ h2 {
   left: 12px;
   top: 12px;
   padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.6);
   color: var(--text);
-  font-size: 0.85rem;
+  font: 400 13px/1.4 var(--mono);
 }
 
+/* ---------------------------------------------------------------- the emote payload */
+
+/*
+  skeuomorphic-ui, one object and one place: a molded badge the emote lands on, so the payload
+  feels thrown rather than faded in. Nothing else on the page is skeuomorphic.
+*/
 .emote {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 10px;
-  border-radius: var(--radius);
-  background: rgba(18, 11, 31, 0.85);
-  border: 1px solid var(--accent);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.emote-plate {
+  position: relative;
+  padding: clamp(10px, 3cqw, 18px);
+  border: 1px solid transparent;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, #2a1c44, #1a1030 52%, #120b1f) padding-box,
+    linear-gradient(180deg, rgba(255, 224, 150, 0.85), rgba(255, 196, 61, 0.28) 45%, rgba(20, 12, 34, 0.9))
+      border-box;
+  box-shadow:
+    0 18px 34px rgba(6, 2, 14, 0.55),
+    0 5px 12px rgba(6, 2, 14, 0.4),
+    inset 0 1px 0 rgba(255, 233, 178, 0.5),
+    inset 0 -1px 0 rgba(10, 6, 18, 0.7);
+}
+
+.emote-plate::after {
+  content: "";
+  position: absolute;
+  inset: 1px 1px auto;
+  height: 35%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 233, 178, 0.14), transparent);
+  pointer-events: none;
 }
 
 .emote img {
-  /* Never more than ~40 % of the stage's height, so a portrait stage keeps its face visible. */
-  width: min(clamp(96px, 30vw, 200px), 36cqh);
+  display: block;
+  /* Never more than ~44 % of the stage's height, so a portrait stage keeps its face visible. */
+  width: min(clamp(110px, 32vw, 220px), 44cqh);
   height: auto;
 }
 
 .emote span {
-  font-weight: 700;
+  font: 700 clamp(15px, 4cqw, 20px) / 1.1 var(--display);
   color: var(--accent);
+  text-shadow: 0 1px 0 rgba(10, 6, 18, 0.7);
 }
 
+/* M6: the one overshoot on the page, on the one hero moment. */
 .emote.pop {
-  animation: pop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1);
+  animation: land var(--dur-pop) var(--ease-land) both;
 }
 
-@keyframes pop {
+.emote.pop .emote-plate {
+  animation: plate var(--dur-pop) var(--ease-land) both;
+}
+
+@keyframes land {
   from {
     transform: scale(0.4);
     opacity: 0;
@@ -174,92 +510,263 @@ h2 {
   }
 }
 
-.hidden {
-  display: none !important;
+@keyframes plate {
+  from {
+    transform: scale(0.92);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 
-.buttons {
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------- the HUD scoreboard */
+
+.hud {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 14px 0 8px;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(16px, 6cqw, 48px);
+  padding: 12px clamp(10px, 3cqw, 22px) 10px;
+  background: linear-gradient(180deg, rgba(11, 7, 20, 0), rgba(11, 7, 20, 0.86) 40%);
+  border-top: 1px solid rgba(255, 196, 61, 0.22);
+  /* M3: the strip rises out of the bottom edge when a session starts. */
+  transform: translateY(101%);
+  transition: transform var(--dur-state) var(--ease);
 }
 
-.button {
-  appearance: none;
-  border: 1px solid var(--line);
-  background: var(--bg-elev);
-  color: var(--text);
-  padding: 12px 18px;
-  border-radius: 999px;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  min-height: 44px;
+.stage.running .hud {
+  transform: translateY(0);
 }
 
-.button.primary {
-  background: var(--accent);
-  color: var(--accent-ink);
-  border-color: var(--accent);
+.hud-cell {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
 }
 
-.button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+.hud-mark {
+  position: relative;
+  display: block;
+  width: 40px;
+  height: 40px;
+  color: var(--muted);
+  transition: color var(--dur-state) var(--ease);
 }
 
-.status {
-  margin: 0 0 24px;
-  min-height: 1.5em;
+.hud-mark .mark {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.meter-list {
+/* M4: the readout. A gold copy of the mark, revealed from the bottom by the live score. */
+.hud-fill {
+  --fill: 0;
+  position: absolute;
+  inset: 0;
+  color: var(--accent);
+  clip-path: inset(calc(100% - var(--fill) * 100%) 0 0 0);
+  transition: clip-path 120ms linear;
+}
+
+.hud-cell.is-active .hud-mark,
+.hud-cell.is-almost .hud-mark {
+  color: var(--accent);
+}
+
+.hud-label {
+  font: 700 11px/1 var(--display);
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
+.hud-cell.is-active .hud-label {
+  color: var(--accent);
+}
+
+/*
+  M5, beam-glow-states in CSS: one restrained travelling gold edge, on one mark at a time,
+  only while that gesture's score is genuinely between 0.35 and 0.5. Never decorative.
+*/
+.hud-cell.is-almost .hud-mark::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  padding: 1px;
+  border-radius: 10px;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    rgba(255, 196, 61, 0.95) 44deg,
+    transparent 100deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  opacity: 0.6;
+  animation: beam 3.2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes beam {
+  to {
+    --beam-angle: 360deg;
+  }
+}
+
+@media (max-width: 560px) {
+  /* The direction's mobile note: Mute joins the button row rather than wrapping to its own line. */
+  .buttons {
+    gap: 8px;
+  }
+
+  .button {
+    padding: 12px 13px;
+    font-size: 15px;
+  }
+
+  .triptych {
+    gap: 12px;
+  }
+
+  .triptych span {
+    font-size: 11px;
+  }
+
+  .hud {
+    gap: clamp(18px, 10cqw, 40px);
+  }
+
+  .hud-mark {
+    width: 28px;
+    height: 28px;
+  }
+
+  .hud-label {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- the three gestures */
+
+.gestures,
+.how {
+  margin-top: 36px;
+}
+
+.gesture-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
-.meter-list li {
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--bg-elev);
-}
-
-.meter-head {
+.gesture-list li {
+  --cut: var(--cut-md);
   display: grid;
-  grid-template-columns: 40px 1fr auto;
+  grid-template-columns: auto 40px 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--muted);
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+  transition: border-color var(--dur-state) var(--ease);
 }
 
-.meter-head img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
+/* number-details: architectural, low contrast, never competing with the name. */
+.gesture-list .num {
+  font: 400 12px/1 var(--mono);
+  letter-spacing: 0.06em;
+  color: #8f7fb4;
 }
 
-.meter-head strong {
+.gesture-body strong {
   display: block;
+  font: 700 17px/1.2 var(--display);
+  color: var(--text);
 }
 
 .hint {
-  font-size: 0.85rem;
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--muted);
 }
 
-.value {
+.gesture-list li.almost {
+  border-color: var(--accent);
+}
+
+.gesture-list li.almost .hint {
+  color: var(--accent);
+}
+
+/* P3 audit item: no 0 % bars at rest. The percentages arrive with the session. */
+.value,
+.bar {
+  display: none;
+}
+
+.gesture-list.is-live li {
+  grid-template-areas:
+    "num mark body value"
+    "bar bar  bar  bar";
+  grid-template-columns: auto 40px 1fr auto;
+}
+
+.gesture-list.is-live .num {
+  grid-area: num;
+}
+
+.gesture-list.is-live .mark {
+  grid-area: mark;
+}
+
+.gesture-list.is-live .gesture-body {
+  grid-area: body;
+}
+
+.gesture-list.is-live .value {
+  grid-area: value;
+  display: block;
+  font: 400 13px/1 var(--mono);
   font-variant-numeric: tabular-nums;
   color: var(--muted);
 }
 
-.bar {
+.gesture-list.is-live .bar {
+  grid-area: bar;
+  display: block;
   position: relative;
-  height: 8px;
-  margin-top: 10px;
-  border-radius: 999px;
+  height: 6px;
+  margin-top: 4px;
   background: var(--line);
   overflow: hidden;
 }
@@ -269,42 +776,144 @@ h2 {
   width: 100%;
   transform: scaleX(0);
   transform-origin: left center;
-  border-radius: 999px;
-  background: var(--cyan);
-  transition: transform 0.12s linear;
-}
-
-.meter-list li.almost {
-  border-color: var(--pink);
-}
-
-.meter-list li.almost .hint {
-  color: var(--pink);
+  background: var(--muted);
+  transition: transform 120ms linear;
 }
 
 .bar.active .fill {
   background: var(--accent);
 }
 
-.how ol {
-  padding-left: 20px;
-  margin: 0 0 12px;
+.note {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 14px;
 }
 
-.how li + li {
-  margin-top: 6px;
+/* ---------------------------------------------------------------- how it works */
+
+.how-steps {
+  margin: 0 0 18px;
+  padding-left: 22px;
+  color: var(--muted);
 }
 
-.meters,
-.how {
-  margin-bottom: 28px;
+.how-steps li + li {
+  margin-top: 8px;
 }
+
+.how-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.how-grid article {
+  --cut: var(--cut-md);
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+}
+
+.how-grid h3 {
+  margin: 0 0 6px;
+  font: 400 11px/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.how-grid p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.timings {
+  display: grid;
+  gap: 0;
+  margin: 18px 0;
+  border-top: 1px solid var(--line);
+}
+
+.timings > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 30%) 1fr;
+  gap: 12px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--line);
+}
+
+.timings dt {
+  font: 400 12px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.timings dd {
+  margin: 0;
+  font: 400 13px/1.4 var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+@media (max-width: 560px) {
+  .timings > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+.how > p:last-of-type {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ---------------------------------------------------------------- footer */
 
 .footer {
+  margin-top: 36px;
   border-top: 1px solid var(--line);
-  padding-top: 16px;
-  font-size: 0.85rem;
+  padding-top: 18px;
+  font-size: 13px;
   color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- entrances (M2) */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity var(--dur-section) var(--ease),
+    transform var(--dur-section) var(--ease);
+  transition-delay: calc(var(--i, 0) * var(--stagger));
+}
+
+[data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/*
+  Without JavaScript nothing would ever add .is-in, so index.html carries a <noscript> style
+  that puts every [data-reveal] block at its final state. That keeps the page complete with
+  scripting off without a flash-then-hide when scripting is on.
+*/
+
+/* ---------------------------------------------------------------- utilities */
+
+.hidden {
+  display: none !important;
 }
 
 .visually-hidden {
@@ -314,4 +923,111 @@ h2 {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -64px;
+  z-index: 10;
+  padding: 12px 18px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  text-decoration: none;
+  transition: top var(--dur-state) var(--ease);
+}
+
+.skip-link:focus-visible {
+  top: 16px;
+}
+
+/*
+  A clip-path clips an outline, so every chamfered control draws its ring inside itself.
+  Unclipped elements keep the ordinary outside ring.
+*/
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: -4px;
+}
+
+.button.primary:focus-visible {
+  outline-color: var(--accent-ink);
+}
+
+/* ---------------------------------------------------------------- reduced motion */
+
+/*
+  One block, mirroring docs/design/spec.md § 2 row by row. Every animation lands on its
+  COMPLETE final state, never a shortened version of itself.
+*/
+@media (prefers-reduced-motion: reduce) {
+  /* M1: the h1 is never split by reveal.ts; if it somehow is, show it whole. */
+  h1 .word {
+    transform: none;
+    animation: none;
+  }
+
+  /* M2: everything is in its final position from the first paint. */
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  /* M3: the scoreboard is simply there, at rest and while running. */
+  .hud {
+    transform: translateY(0);
+    transition: none;
+  }
+
+  .arena,
+  .stage::before,
+  .stage::after {
+    transition: none;
+  }
+
+  /* M4: the readout snaps rather than tracks. It is information, so it still updates. */
+  .hud-fill,
+  .fill,
+  .hud-mark {
+    transition: none;
+  }
+
+  /* M5: a complete static gold edge instead of a travelling one. */
+  .hud-cell.is-almost .hud-mark::after {
+    animation: none;
+    background: none;
+    border: 1px solid var(--accent);
+    opacity: 1;
+  }
+
+  /* M6 / M7: full scale, a 120 ms opacity fade, no overshoot and no plate motion. */
+  .emote.pop {
+    animation: fade-in 120ms linear both;
+  }
+
+  .emote.pop .emote-plate {
+    animation: none;
+  }
+
+  /* M8 */
+  .button {
+    transition:
+      background var(--dur-micro) linear,
+      border-color var(--dur-micro) linear;
+  }
+
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+
+  .skip-link {
+    transition: none;
+  }
 }
