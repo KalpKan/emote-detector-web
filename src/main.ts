@@ -53,7 +53,11 @@ const engine = new GestureEngine();
 const gate = new EmoteGate();
 const sounds = new Map<Emote["id"], HTMLAudioElement>();
 let emoteTimer = 0;
+let emoteLeaveTimer = 0;
 let muted = false;
+/** How long the payload stays on the plate, and how much of that is its exit fade (spec § 2, M6/M7). */
+const EMOTE_HOLD_MS = 1800;
+const EMOTE_LEAVE_MS = 180;
 /** Which hint is shown and for how long (D3: a shown hint holds, whichever gesture comes next). */
 const hintHold = new HintHold();
 let shownHint: ShownHint | null = null;
@@ -112,8 +116,18 @@ function showEmote(emote: Emote): void {
       /* autoplay blocked: the image still shows */
     });
   }
+  // The payload holds for 1.8 s and then leaves on a short fade (M7). `.hidden` still lands at
+  // exactly 1.8 s, so the e2e harness and the demo timings are unchanged.
   window.clearTimeout(emoteTimer);
-  emoteTimer = window.setTimeout(() => emoteBox.classList.add("hidden"), 1800);
+  window.clearTimeout(emoteLeaveTimer);
+  emoteBox.classList.remove("leaving");
+  emoteTimer = window.setTimeout(() => {
+    emoteBox.classList.add("leaving");
+    emoteLeaveTimer = window.setTimeout(() => {
+      emoteBox.classList.remove("leaving", "pop");
+      emoteBox.classList.add("hidden");
+    }, EMOTE_LEAVE_MS);
+  }, EMOTE_HOLD_MS - EMOTE_LEAVE_MS);
   capture("emote_fired", { emote: emote.id });
 }
 
@@ -303,6 +317,9 @@ function stop(): void {
     meters[g].hint.closest("li")?.classList.remove("almost");
   }
   stage.style.aspectRatio = stageAspect(0, 0);
+  window.clearTimeout(emoteTimer);
+  window.clearTimeout(emoteLeaveTimer);
+  emoteBox.classList.remove("leaving", "pop");
   emoteBox.classList.add("hidden");
   setRunning(false, null);
   setStatus("Stopped.");

@@ -1,10 +1,17 @@
 // Arena DOM gate for the "Your own arena" redesign (docs/design/spec.md).
 //
-// Drives the real built page through Chrome's fake camera and asserts the visible contract at
-// 1440 and 390, plus the reduced-motion final states. It deliberately reuses the same
-// puppeteer-core fake-camera setup as scripts/e2e-camera.mjs rather than adding a second
-// browser-automation dependency; that harness remains the DETECTION gate, this one is the
-// DESIGN gate.
+// Drives the real built page in headless Chrome and asserts the redesign's visible contract at
+// 1440 and 390, plus the reduced-motion final states. It reuses the same puppeteer-core
+// fake-camera setup as scripts/e2e-camera.mjs rather than adding a second browser-automation
+// dependency; that harness remains the DETECTION gate, this one is the DESIGN gate.
+//
+// Two session modes, on purpose:
+//   camera  the real path — Chrome's fake camera device feeding the committed .mjpeg clip through
+//           three MediaPipe models. This is what proves the camera-on states. It is slow (models
+//           + WASM + SwiftShader), so it runs the small set of assertions only it can make.
+//   demo    the page's own deterministic landmark replay. Identical DOM states — running, the HUD
+//           up, the percentages, an emote on its plate — with no models at all, so the styling and
+//           motion assertions are cheap and never flake on a loaded machine.
 //
 //   npm run build && npx vite preview --port 4173 &
 //   node scripts/e2e-arena.mjs [url]
@@ -32,6 +39,9 @@ const translateY = (matrix) => {
 const browser = await puppeteer.launch({
   executablePath: chrome,
   headless: true,
+  // Three MediaPipe models on SwiftShader can hold the main thread for well over the 30 s default,
+  // and a CDP call that times out kills the run rather than failing an assertion.
+  protocolTimeout: 300_000,
   args: [
     "--use-fake-ui-for-media-stream",
     "--use-fake-device-for-media-stream",
@@ -43,8 +53,8 @@ const browser = await puppeteer.launch({
   ],
 });
 
-async function run(width, height, reduced) {
-  const tag = `${width}x${height}${reduced ? " reduce" : ""}`;
+async function run(width, height, { reduced = false, mode = "demo" } = {}) {
+  const tag = `${width}x${height} ${mode}${reduced ? " reduce" : ""}`;
   const page = await browser.newPage();
   const consoleErrors = [];
   page.on("pageerror", (e) => consoleErrors.push(String(e)));
@@ -96,11 +106,17 @@ async function run(width, height, reduced) {
   const revealHidden = await page.$eval(".gesture-list li", (el) => Number(getComputedStyle(el).opacity));
   check(`${tag}: reveal blocks ${reduced ? "are complete on paint" : "are visible once scrolled to"}`, reduced ? revealHidden === 1 : revealHidden >= 0, String(revealHidden));
 
-  // --- camera on ---------------------------------------------------------------
+  // --- session on ---------------------------------------------------------------
 
-  await page.click("#start-camera");
-  await page.waitForFunction(() => document.getElementById("status").textContent.startsWith("Watching"), { timeout: 180_000 });
-  check(`${tag}: camera session reaches "Watching"`, true);
+  if (mode === "camera") {
+    await page.click("#start-camera");
+    await page.waitForFunction(() => document.getElementById("status").textContent.startsWith("Watching"), { timeout: 300_000, polling: 1000 });
+    check(`${tag}: camera session reaches "Watching"`, true);
+  } else {
+    await page.click("#start-demo");
+    await page.waitForFunction(() => document.getElementById("stage").classList.contains("running"), { timeout: 30_000 });
+    check(`${tag}: session starts`, true);
+  }
 
   check(`${tag}: "Stop" appears with the session`, (await page.$eval("#stop", (el) => el.offsetParent !== null)) === true);
   check(`${tag}: percentages appear with the session`, (await page.$eval("#val-flex", (el) => el.offsetParent !== null)) === true);
@@ -111,7 +127,7 @@ async function run(width, height, reduced) {
 
   // M4: the fill tracks a real score.
   const filled = await page
-    .waitForFunction(() => [...document.querySelectorAll(".hud-fill")].some((el) => Number(el.style.getPropertyValue("--fill")) > 0.15), { timeout: 90_000, polling: 100 })
+    .waitForFunction(() => [...document.querySelectorAll(".hud-fill")].some((el) => Number(el.style.getPropertyValue("--fill")) > 0.15), { timeout: 180_000, polling: mode === "camera" ? 1000 : 100 })
     .then(() => true)
     .catch(() => false);
   check(`${tag}: a HUD mark fills from a live score`, filled);
@@ -123,7 +139,7 @@ async function run(width, height, reduced) {
         const e = document.getElementById("emote");
         return !e.classList.contains("hidden") && e.classList.contains("pop") && !!document.getElementById("emote-name").textContent;
       },
-      { timeout: 120_000, polling: 50 },
+      { timeout: 180_000, polling: mode === "camera" ? 500 : 40 },
     )
     .then(() => true)
     .catch(() => false);
@@ -141,6 +157,10 @@ async function run(width, height, reduced) {
   // --- reduced motion lands on complete static states ---------------------------
 
   if (reduced) {
+    // Stop the session first: reading computed styles while three models run per frame under
+    // SwiftShader is what makes these calls time out rather than fail.
+    await page.click("#stop");
+    await new Promise((r) => setTimeout(r, 300));
     const zero = (v) => /^0s(,\s*0s)*$/.test(v);
     check(`${tag}: HUD strip has no transition`, zero(await page.$eval("#hud", (el) => getComputedStyle(el).transitionDuration)));
     check(`${tag}: HUD fill snaps`, zero(await page.$eval(".hud-fill", (el) => getComputedStyle(el).transitionDuration)));
@@ -153,13 +173,22 @@ async function run(width, height, reduced) {
   }
 
   check(`${tag}: console clean`, consoleErrors.length === 0, consoleErrors.join(" | "));
+  await page.evaluate(() => document.getElementById("stop")?.click()).catch(() => {});
   await page.close();
 }
 
 try {
-  await run(1440, 780, false);
-  await run(390, 844, false);
-  await run(1440, 780, true);
+  // Cheap, deterministic: the whole visible contract at both widths, and the reduced-motion
+  // final states. These are the assertions that must never flake.
+  await run(1440, 780, { mode: "demo" });
+  await run(390, 844, { mode: "demo" });
+  await run(1440, 780, { mode: "demo", reduced: true });
+  // Expensive, and the only thing that proves the real path: the fake camera device feeding the
+  // committed clip through the three MediaPipe models, at both widths.
+  if (!process.env.SKIP_CAMERA) {
+    await run(1440, 780, { mode: "camera" });
+    await run(390, 844, { mode: "camera" });
+  }
 } finally {
   await browser.close();
 }

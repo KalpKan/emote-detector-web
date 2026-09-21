@@ -106,9 +106,12 @@ gradient, a 1 px reflective gradient border, stacked outer elevation plus inset 
 top-edge highlight and a darker lower edge. Nothing else on the page is skeuomorphic — mixing
 materials is the skill's own first rule.
 
-**Elevation** (`beautiful-shadows`, tinted to the purple ground rather than pure black):
-`--shadow-sm` on controls, `--shadow-lg` as the arena's single contact shadow. One strength per
-component state.
+**Elevation** (`beautiful-shadows`, tinted to the purple ground rather than pure black, which is
+that skill's rule via `skeuomorphic-ui`): `--shadow-sm` is the skill's three-layer "Beautiful sm"
+shape — a soft drop, a hairline under-edge and a 1 px ring — on controls. The arena carries a
+single tinted contact shadow through `filter: drop-shadow()`, because a `clip-path`ed surface
+clips `box-shadow` and `drop-shadow()` takes one shadow; chaining several full-element blurs
+behind a live video is not worth the paint. One strength per component state.
 
 ---
 
@@ -188,8 +191,10 @@ the control row, and the timings list folds from two columns to one.
   announced by the hints and the status line, and a live score would otherwise be read at frame rate.
 - The split h1 keeps its full accessible name through `aria-label`; the word spans are `aria-hidden`.
 - `aria-pressed` on Mute. 44 px minimum on every button.
-- A `<noscript>` style puts every `[data-reveal]` block at its final state, so the page is complete
-  with scripting off.
+- A `[data-reveal]` block's resting state IS its final state. `reveal.ts` adds `reveal-ready` to
+  `<html>` only when it is really about to animate, so no section can be left invisible by a
+  script that did not run, an observer that never fired, or a browser without
+  `IntersectionObserver`.
 
 ---
 

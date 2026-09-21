@@ -57,10 +57,12 @@ export function initReveals(doc: ParentNode = document): void {
 
   for (const el of doc.querySelectorAll<HTMLElement>("[data-word-reveal]")) splitWords(el);
 
-  if (typeof IntersectionObserver !== "function") {
-    for (const el of doc.querySelectorAll<HTMLElement>("[data-reveal]")) el.classList.add("is-in");
-    return;
-  }
+  // Nothing is hidden until this class is on <html>, so a [data-reveal] block can never be left
+  // invisible by a script that did not run, an observer that never fired, or a browser without
+  // IntersectionObserver. The animation is the opt-in; being readable is the default.
+  if (typeof IntersectionObserver !== "function") return;
+  document.documentElement.classList.add("reveal-ready");
+
   observer ??= new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {

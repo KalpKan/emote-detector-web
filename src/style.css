@@ -38,7 +38,8 @@
   --stagger: 60ms;
 
   /* beautiful-shadows, tinted to the purple ground rather than pure black. */
-  --shadow-sm: 0 2px 3px -1px rgba(6, 2, 14, 0.5), 0 0 0 1px rgba(47, 34, 70, 0.9);
+  --shadow-sm: 0 2px 3px -1px rgba(6, 2, 14, 0.5), 0 1px 0 0 rgba(6, 2, 14, 0.25),
+    0 0 0 1px rgba(47, 34, 70, 0.9);
   --shadow-lg: 0 18px 38px rgba(6, 2, 14, 0.55);
 
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -104,19 +105,18 @@ a {
 /* ---------------------------------------------------------------- shape language */
 
 /*
-  corner-diagonals: every chamfered surface uses this one mirrored polygon (top-left and
-  bottom-right), so background, border and hit area share a silhouette.
+  corner-diagonals: every chamfered surface below uses this one mirrored polygon (top-left and
+  bottom-right) at its own --cut size, applied to background, border and hit area together:
+
+    clip-path: polygon(
+      var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut)
+    );
+
+  It is written out per component rather than shared through a utility class, because
+  `clip-path: inherit` is what keeps the stage inside the arena's frame and a second source of
+  the same polygon would be one more thing to keep in step.
 */
-.cut {
-  clip-path: polygon(
-    var(--cut) 0,
-    100% 0,
-    100% calc(100% - var(--cut)),
-    calc(100% - var(--cut)) 100%,
-    0 100%,
-    0 var(--cut)
-  );
-}
 
 /* ---------------------------------------------------------------- the marks */
 
@@ -242,8 +242,17 @@ h2 {
   border-color: #ffd167;
 }
 
-.button:disabled {
-  opacity: 0.45;
+/*
+  A disabled control goes inert rather than translucent: dimming the gold primary to 45 % turned
+  it a muddy brown, which reads as broken rather than as unavailable.
+*/
+.button:disabled,
+.button.primary:disabled {
+  background: var(--bg-elev);
+  border-color: var(--line);
+  color: var(--muted);
+  box-shadow: none;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
@@ -426,13 +435,24 @@ h2 {
 }
 
 .demo-caption {
+  --cut: 6px;
   position: absolute;
-  left: 12px;
-  top: 12px;
-  padding: 4px 10px;
-  background: rgba(0, 0, 0, 0.6);
+  left: 14px;
+  top: 14px;
+  padding: 5px 11px;
+  background: rgba(11, 7, 20, 0.86);
+  border: 1px solid rgba(255, 196, 61, 0.28);
   color: var(--text);
-  font: 400 13px/1.4 var(--mono);
+  font: 400 12px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
 }
 
 /* ---------------------------------------------------------------- the emote payload */
@@ -507,6 +527,20 @@ h2 {
   to {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+/* M7: the payload leaves on a short fade rather than being cut. */
+.emote.leaving {
+  animation: emote-leave var(--dur-exit) var(--ease-exit) both;
+}
+
+@keyframes emote-leave {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 
@@ -890,7 +924,13 @@ h2 {
 
 /* ---------------------------------------------------------------- entrances (M2) */
 
-[data-reveal] {
+/*
+  The resting state of a [data-reveal] block is its FINAL state. reveal.ts adds `reveal-ready`
+  to <html> only when it is really about to animate, so a block can never be left invisible by
+  a script that did not run, an observer that never fired, or a browser without
+  IntersectionObserver. Being readable is the default; the animation is the opt-in.
+*/
+html.reveal-ready [data-reveal] {
   opacity: 0;
   transform: translateY(16px);
   transition:
@@ -899,16 +939,10 @@ h2 {
   transition-delay: calc(var(--i, 0) * var(--stagger));
 }
 
-[data-reveal].is-in {
+html.reveal-ready [data-reveal].is-in {
   opacity: 1;
   transform: none;
 }
-
-/*
-  Without JavaScript nothing would ever add .is-in, so index.html carries a <noscript> style
-  that puts every [data-reveal] block at its final state. That keeps the page complete with
-  scripting off without a flash-then-hide when scripting is on.
-*/
 
 /* ---------------------------------------------------------------- utilities */
 
@@ -973,8 +1007,9 @@ h2 {
     animation: none;
   }
 
-  /* M2: everything is in its final position from the first paint. */
-  [data-reveal] {
+  /* M2: everything is in its final position from the first paint. reveal.ts never arms it. */
+  [data-reveal],
+  html.reveal-ready [data-reveal] {
     opacity: 1;
     transform: none;
     transition: none;
@@ -1007,9 +1042,13 @@ h2 {
     opacity: 1;
   }
 
-  /* M6 / M7: full scale, a 120 ms opacity fade, no overshoot and no plate motion. */
+  /* M6 / M7: full scale, a 120 ms opacity fade in and out, no overshoot, no plate motion. */
   .emote.pop {
     animation: fade-in 120ms linear both;
+  }
+
+  .emote.leaving {
+    animation: emote-leave 120ms linear both;
   }
 
   .emote.pop .emote-plate {
