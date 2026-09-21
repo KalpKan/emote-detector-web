@@ -143,9 +143,23 @@ async function run(width, height, { reduced = false, mode = "demo" } = {}) {
   check(`${tag}: "Stop" appears with the session`, (await page.$eval("#stop", (el) => el.offsetParent !== null)) === true);
   check(`${tag}: percentages appear with the session`, (await page.$eval("#val-flex", (el) => el.offsetParent !== null)) === true);
 
-  // M3: the scoreboard is up.
+  // M3: the scoreboard rises out of the bottom edge and settles there. Read it as "reaches its
+  // up position within the 200 ms state transition", not as a single sample — a sample taken
+  // mid-slide is a correct state reported as a failure.
+  const hudUp = await page
+    .waitForFunction(
+      () => {
+        const m = getComputedStyle(document.getElementById("hud")).transform;
+        if (m === "none") return true;
+        const parts = m.replace(/^matrix\(|\)$/g, "").split(",").map(Number);
+        return parts.length === 6 && Math.abs(parts[5]) < 1;
+      },
+      { timeout: 5000, polling: 50 },
+    )
+    .then(() => true)
+    .catch(() => false);
   const hudY = translateY(await page.$eval("#hud", (el) => getComputedStyle(el).transform));
-  check(`${tag}: HUD strip is up while running`, Math.abs(hudY) < 1, `translateY=${hudY}`);
+  check(`${tag}: HUD strip rises and settles while running`, hudUp, `translateY=${hudY}`);
 
   // M4: the fill tracks a real score.
   const filled = await page

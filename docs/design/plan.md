@@ -1397,6 +1397,76 @@ minutes rather than seconds; it does not change any verdict.
 01/02/03 #8f7fb4 on --bg-elev       4.97   <- shipped
 ```
 
+### Arena design gate, `node scripts/e2e-arena.mjs`
+
+Two runs. The first (2026-09-21 03:40-03:43) covered all five combinations including the two
+fake-camera runs; the second (`SKIP_CAMERA=1`) re-ran the three demo combinations after the
+last harness fix.
+
+```
+run 1  106/108 assertions passed
+       FAILED: 1440x780 demo: HUD strip is up while running translateY=80.8
+       FAILED:  390x844 demo: HUD strip is up while running translateY=7.302
+```
+
+Both failures were the harness sampling the HUD's transform in the middle of its own 200 ms
+slide — a correct state reported as a failure. The assertion now waits for the strip to settle,
+which is the actual contract. Every fake-camera assertion passed in run 1, at both widths:
+
+```
+PASS  1440x780 camera: camera session reaches "Watching"
+PASS  1440x780 camera: "Stop" appears with the session
+PASS  1440x780 camera: percentages appear with the session
+PASS  1440x780 camera: HUD strip is up while running   translateY=0
+PASS  1440x780 camera: a HUD mark fills from a live score
+PASS  1440x780 camera: an emote fires and lands on its plate
+PASS  1440x780 camera: the payload is still Supercell's own art, unchanged   /emotes/princess_yawn.png
+PASS  1440x780 camera: console clean
+PASS   390x844 camera: camera session reaches "Watching"
+PASS   390x844 camera: "Stop" appears with the session
+PASS   390x844 camera: percentages appear with the session
+PASS   390x844 camera: HUD strip is up while running   translateY=0
+PASS   390x844 camera: a HUD mark fills from a live score
+PASS   390x844 camera: an emote fires and lands on its plate   Goblin Muscle
+PASS   390x844 camera: emote animation is "land"   land
+PASS   390x844 camera: plate is animated   plate
+PASS   390x844 camera: the payload is still Supercell's own art, unchanged   /emotes/goblin_muscle.png
+PASS   390x844 camera: console clean
+```
+
+```
+run 2  66/66 assertions passed
+PASS  1440x780 demo:        HUD strip rises and settles while running   translateY=0
+PASS   390x844 demo:        HUD strip rises and settles while running   translateY=0.920525
+PASS  1440x780 demo reduce: HUD strip rises and settles while running   translateY=0
+PASS  1440x780 demo reduce: HUD strip has no transition
+PASS  1440x780 demo reduce: HUD fill snaps
+PASS  1440x780 demo reduce: gesture bars snap
+PASS  1440x780 demo reduce: the beam does not travel   none
+PASS  1440x780 demo reduce: h1 is never split under reduce   no
+PASS  1440x780 demo reduce: reveal blocks are complete on paint   1
+PASS  1440x780 demo reduce: emote animation is "fade-in"   fade-in
+PASS  1440x780 demo reduce: plate is static   none
+```
+
+### Typecheck, tests, build
+
+```
+$ npm run typecheck
+(clean)
+
+$ npm test
+Test Files  9 passed (9)
+     Tests  197 passed (197)
+
+$ npm run build
+dist/index.html                         14.24 kB | gzip:  4.32 kB
+dist/assets/index-BYk7RR4M.css          13.82 kB | gzip:  4.08 kB
+dist/assets/index-DwPYy5S4.js           28.40 kB | gzip: 11.21 kB
+dist/assets/vision_bundle-52c-CqHQ.js  153.77 kB | gzip: 45.44 kB
+dist/assets/module-do5nsKbH.js         288.27 kB | gzip: 95.65 kB
+```
+
 ### Frozen files, `git diff main -- …`
 
 ```

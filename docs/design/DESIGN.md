@@ -25,7 +25,7 @@ it was the best thing about it. What changed is that every colour now has exactl
 | `--text` | `#f3edff` | Headings, names, values. |
 | `--muted` | `#b3a6cc` | Prose, hints, the status line, and the landmark overlay. |
 | `--line` | `#2f2246` | Every 1 px rule and panel edge that is not the arena. |
-| `--accent` | `#ffc43d` | **Gold. A gesture firing or about to fire, and the primary button. Nothing else.** |
+| `--accent` | `#ffc43d` | **Gold is the arena**: its frame, its corner brackets, its floor-light, the marks it shows at rest, and any gesture firing or about to fire inside it. Outside the arena, only the primary button that starts a session and the "almost" state on a gesture row. Never a section heading, an eyebrow or a numeral. |
 | `--accent-ink` | `#2a1c00` | Text on gold. 10.45:1. |
 | `--cyan` | `#66e3ff` | **Links, and the focus ring. Nothing else.** |
 

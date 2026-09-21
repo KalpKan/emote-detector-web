@@ -67,8 +67,11 @@ COLOR + MATERIAL
   --bg #120b1f · --bg-elev #1c1230 · --bg-stage #0b0714 · --text #f3edff · --muted #b3a6cc
   --line #2f2246 · --accent #ffc43d · --accent-ink #2a1c00 · --cyan #66e3ff
 - DISCIPLINED to one job each:
-  gold  = a gesture firing or about to fire, and the primary button. Nothing else.
-  cyan  = links only.
+  gold  = THE ARENA. Its frame, its corner brackets, its floor-light, the marks it displays at
+          rest, and any gesture firing or about to fire inside it. Outside the arena the only
+          gold is the primary button that starts a session and the "almost" state on a gesture
+          row. Section headings, eyebrows and numerals are never gold.
+  cyan  = links and the focus ring only.
   pink  = DELETED. It had no role: it tinted the "almost" border (now gold, which is that
           state's colour) and the face landmark dots (now muted, which is what the overlay is).
 - Material: chamfered arena panels with a 1px gold-tinted edge on the stage; flat elevated

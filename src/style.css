@@ -845,7 +845,9 @@ h2 {
 .how-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  /* Each panel hugs its own prose. Stretching them left a void the length of Arbitration. */
+  align-items: start;
 }
 
 .how-grid article {
@@ -868,7 +870,8 @@ h2 {
   font: 400 11px/1 var(--mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent);
+  /* Not gold: outside the arena, gold is the primary button and the "almost" state only. */
+  color: var(--text);
 }
 
 .how-grid p {
