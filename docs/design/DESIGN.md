@@ -101,6 +101,11 @@ third and a radial floor-light coming up from beneath it. That light is the only
 and it is concentrated there; the purple is never washed. When a session starts the frame's edge
 brightens and the furniture steps back behind the picture.
 
+**The one rounded thing on the page is the plate**, at 20 px, and that is the hierarchy
+`corner-diagonals` asks for when rounded and chamfered geometry share a surface: everything that
+is *interface* is chamfered; the single *physical object* that gets thrown into the arena is
+molded. If a second rounded surface appears, that distinction has been lost.
+
 **One skeuomorphic object** (`skeuomorphic-ui`): the plate the emote lands on. Soft vertical
 gradient, a 1 px reflective gradient border, stacked outer elevation plus inset carved depth, a
 top-edge highlight and a darker lower edge. Nothing else on the page is skeuomorphic — mixing

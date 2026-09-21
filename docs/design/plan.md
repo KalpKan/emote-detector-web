@@ -1376,4 +1376,34 @@ Step 1). `beamGesture` returns `Gesture | null`, consumed only inside `Hud#updat
 
 ## Verification log
 
-Filled in as the gates run. Raw output only.
+Raw output, captured on the night of 2026-09-21. The machine was shared with several other
+build agents (load average 36-48 throughout), which is why the MediaPipe camera runs took
+minutes rather than seconds; it does not change any verdict.
+
+### Contrast, WCAG 2.x relative luminance
+
+```
+--text on --bg                     16.80
+--text on --bg-elev                15.59
+--muted on --bg                     8.45
+--muted on --bg-elev                7.84
+--muted on --bg-stage               8.76
+--accent-ink on --accent           10.45
+--accent on --bg-stage             12.53
+--accent on --bg-elev              11.21
+--cyan on --bg                     12.80
+--cyan on --bg-elev                11.88
+01/02/03 #6c5b8c on --bg-elev       2.98   <- FAILED AA at 12 px, raised
+01/02/03 #8f7fb4 on --bg-elev       4.97   <- shipped
+```
+
+### Frozen files, `git diff main -- …`
+
+```
+$ git diff --stat main -- src/gestures src/emotes.ts src/hints.ts src/demo.ts src/fixtures.ts \
+    src/landmarkers.ts src/analytics.ts public/emotes public/mediapipe public/demo \
+    public/health.json tests/rules.test.ts tests/engine.test.ts tests/stills.test.ts \
+    tests/clips.test.ts tests/video.test.ts tests/hints.test.ts tests/demo.test.ts tests/corpus.ts
+(no output — every one of them is byte-identical to main)
+```
+

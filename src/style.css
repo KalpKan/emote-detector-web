@@ -642,18 +642,24 @@ h2 {
   inset: -7px;
   padding: 1px;
   border-radius: 10px;
+  /*
+    `var(--beam-angle, 0deg)` keeps the declaration valid where @property is unsupported: the
+    beam is then a static gold highlight on the ring rather than a travelling one, which is a
+    complete state in its own right. Mask longhands rather than the shorthand, because Safari
+    does not parse a compositing operator inside `mask:`.
+  */
   background: conic-gradient(
-    from var(--beam-angle),
+    from var(--beam-angle, 0deg),
     transparent 0deg,
     rgba(255, 196, 61, 0.95) 44deg,
     transparent 100deg
   );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box exclude,
-    linear-gradient(#000 0 0);
-  mask:
-    linear-gradient(#000 0 0) content-box exclude,
-    linear-gradient(#000 0 0);
+  -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+  -webkit-mask-clip: content-box, border-box;
+  -webkit-mask-composite: xor;
+  mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+  mask-clip: content-box, border-box;
+  mask-composite: exclude;
   opacity: 0.6;
   animation: beam 3.2s linear infinite;
   pointer-events: none;
@@ -1038,6 +1044,8 @@ html.reveal-ready [data-reveal].is-in {
   .hud-cell.is-almost .hud-mark::after {
     animation: none;
     background: none;
+    -webkit-mask-image: none;
+    mask-image: none;
     border: 1px solid var(--accent);
     opacity: 1;
   }
