@@ -141,13 +141,18 @@ machinery behind the cartoon instead of competing with the payload for attention
 
 ## 5. Motion
 
-One easing family, plus one deliberate landing curve used by exactly one keyframe.
+One easing family, plus one deliberate landing curve driving exactly one beat.
 
 ```css
 --ease:      cubic-bezier(0.2, 0.8, 0.2, 1);
 --ease-exit: cubic-bezier(0.4, 0.0, 1, 1);
 --ease-land: cubic-bezier(0.2, 1.25, 0.35, 1);   /* the emote landing, and nothing else */
 ```
+
+That beat takes two keyframes, because the emote and the plate it lands on are separate
+elements: `land` on `.emote.pop` and `plate` on `.emote.pop .emote-plate`, same duration, same
+curve, same moment. They are the only two animations in the file that use `--ease-land`, and a
+third would mean the page has grown a second bouncy moment.
 
 Durations: micro 140 ms · state 200 ms · pop 340 ms · exit 180 ms · section 520 ms · hero 700 ms ·
 stagger 60 ms (35 ms for hero words).

@@ -149,8 +149,10 @@ static final state under `prefers-reduced-motion: reduce`.
 
 `--ease-land` is the single deliberate exception to "avoid bouncy defaults".
 `animation-systems` permits bounce when the brand is playful; this brand is a cartoon arena, and
-the rule it buys is *one strong authored moment, the rest supporting motion*. It is used by
-exactly one keyframe.
+the rule it buys is *one strong authored moment, the rest supporting motion*. It drives exactly
+one beat — the emote landing — which takes two keyframes because the emote and the plate it
+lands on are separate elements: `land` on `.emote.pop` and `plate` on `.emote.pop .emote-plate`,
+same duration, same curve, same moment. Nothing else on the page uses it.
 
 ### Inventory — every moving thing, its reason, and its reduced-motion landing
 
