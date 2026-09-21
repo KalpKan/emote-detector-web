@@ -1,4 +1,10 @@
-/** Canvas overlay: the landmarks the rules actually read, drawn as a light skeleton. */
+/**
+ * Canvas overlay: the landmarks the rules actually read, drawn as a light skeleton.
+ *
+ * Since the "Your own arena" redesign the skeleton is drawn in --muted at low alpha so it reads
+ * as machinery behind the cartoon rather than as a second focal point competing with the emote.
+ * Only the colours changed; every point, line and threshold is the same as before.
+ */
 import { FACE } from "./gestures/face";
 import { POSE } from "./gestures/flex";
 import type { Pt } from "./gestures/geometry";
@@ -89,20 +95,20 @@ export function drawOverlay(ctx: CanvasRenderingContext2D, o: Overlay): void {
       ctx.lineTo((X(ls) + X(rs)) / 2, Y(ls) + headR * 3);
       ctx.stroke();
     }
-    lines(o.pose, POSE_LINES, "rgba(255, 196, 61, 0.9)", Math.max(3, w / 160));
-    dots([o.pose[POSE.LEFT_WRIST], o.pose[POSE.RIGHT_WRIST], o.pose[POSE.LEFT_ELBOW], o.pose[POSE.RIGHT_ELBOW]], "#ffc43d", Math.max(4, w / 120));
+    lines(o.pose, POSE_LINES, "rgba(179, 166, 204, 0.55)", Math.max(3, w / 160));
+    dots([o.pose[POSE.LEFT_WRIST], o.pose[POSE.RIGHT_WRIST], o.pose[POSE.LEFT_ELBOW], o.pose[POSE.RIGHT_ELBOW]], "rgba(179, 166, 204, 0.7)", Math.max(4, w / 120));
   }
 
   if (o.hands) {
     for (const hand of o.hands) {
-      lines(hand, HAND_LINES, "rgba(102, 227, 255, 0.9)", Math.max(2, w / 240));
-      dots(hand, "#66e3ff", Math.max(2.5, w / 220));
+      lines(hand, HAND_LINES, "rgba(179, 166, 204, 0.5)", Math.max(2, w / 240));
+      dots(hand, "rgba(179, 166, 204, 0.65)", Math.max(2.5, w / 220));
     }
   }
 
   if (o.face && o.face.length >= 468) {
     const pts = FACE_POINTS.map((i) => o.face![i]).filter(Boolean);
-    dots(pts, "#ff7ab6", Math.max(2.5, w / 220));
+    dots(pts, "rgba(179, 166, 204, 0.65)", Math.max(2.5, w / 220));
     // Mouth outline: left corner -> upper lip -> right corner -> lower lip.
     lines(
       o.face,
@@ -112,7 +118,7 @@ export function drawOverlay(ctx: CanvasRenderingContext2D, o: Overlay): void {
         [FACE.MOUTH_RIGHT, FACE.LOWER_LIP],
         [FACE.LOWER_LIP, FACE.MOUTH_LEFT],
       ],
-      "rgba(255, 122, 182, 0.8)",
+      "rgba(179, 166, 204, 0.5)",
       Math.max(2, w / 260),
     );
   }

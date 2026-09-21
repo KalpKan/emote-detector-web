@@ -6,7 +6,9 @@ import { faceMetrics } from "./gestures/face";
 import { GESTURES, GestureEngine, type FrameResult, type Gesture, poseGap, rawScores } from "./gestures/engine";
 import type { Pt } from "./gestures/geometry";
 import { HintHold, hintText, type ShownHint, stageAspect } from "./hints";
+import { Hud } from "./hud";
 import { loadLandmarkers, type Landmarkers } from "./landmarkers";
+import { initReveals } from "./reveal";
 
 const $ = <T extends HTMLElement>(id: string): T => {
   const el = document.getElementById(id);
@@ -28,6 +30,9 @@ const emoteImg = $<HTMLImageElement>("emote-img");
 const emoteName = $<HTMLSpanElement>("emote-name");
 const demoCaption = $<HTMLDivElement>("demo-caption");
 const ctx = canvas.getContext("2d")!;
+/** The arena's scoreboard along the bottom edge of the stage. Draws only what the engine computes. */
+const hud = new Hud($<HTMLDivElement>("hud"));
+const gestureList = $<HTMLUListElement>("gesture-list");
 
 const meters: Record<Gesture, { bar: HTMLDivElement; value: HTMLSpanElement; hint: HTMLSpanElement; idle: string }> = {
   flex: { bar: $("bar-flex"), value: $("val-flex"), hint: $("hint-flex"), idle: "" },
@@ -48,7 +53,11 @@ const engine = new GestureEngine();
 const gate = new EmoteGate();
 const sounds = new Map<Emote["id"], HTMLAudioElement>();
 let emoteTimer = 0;
+let emoteLeaveTimer = 0;
 let muted = false;
+/** How long the payload stays on the plate, and how much of that is its exit fade (spec § 2, M6/M7). */
+const EMOTE_HOLD_MS = 1800;
+const EMOTE_LEAVE_MS = 180;
 /** Which hint is shown and for how long (D3: a shown hint holds, whichever gesture comes next). */
 const hintHold = new HintHold();
 let shownHint: ShownHint | null = null;
@@ -107,8 +116,18 @@ function showEmote(emote: Emote): void {
       /* autoplay blocked: the image still shows */
     });
   }
+  // The payload holds for 1.8 s and then leaves on a short fade (M7). `.hidden` still lands at
+  // exactly 1.8 s, so the e2e harness and the demo timings are unchanged.
   window.clearTimeout(emoteTimer);
-  emoteTimer = window.setTimeout(() => emoteBox.classList.add("hidden"), 1800);
+  window.clearTimeout(emoteLeaveTimer);
+  emoteBox.classList.remove("leaving");
+  emoteTimer = window.setTimeout(() => {
+    emoteBox.classList.add("leaving");
+    emoteLeaveTimer = window.setTimeout(() => {
+      emoteBox.classList.remove("leaving", "pop");
+      emoteBox.classList.add("hidden");
+    }, EMOTE_LEAVE_MS);
+  }, EMOTE_HOLD_MS - EMOTE_LEAVE_MS);
   capture("emote_fired", { emote: emote.id });
 }
 
@@ -119,6 +138,7 @@ function updateMeters(scores: Record<Gesture, number>, active: Gesture | null): 
     meters[g].value.textContent = `${pct}%`;
     meters[g].bar.parentElement!.classList.toggle("active", active === g);
   }
+  hud.update(scores, active);
 }
 
 /**
@@ -211,6 +231,9 @@ function setRunning(running: boolean, kind: Source["kind"] | null): void {
   stage.classList.toggle("camera", kind === "camera");
   placeholder.classList.toggle("hidden", running);
   demoCaption.classList.toggle("hidden", kind !== "demo");
+  // P3 audit items: no dead "Stop" and no three identical 0 % rows before anything has started.
+  stopBtn.classList.toggle("is-idle-hidden", !running);
+  gestureList.classList.toggle("is-live", running);
 }
 
 async function ensureModels(): Promise<Landmarkers> {
@@ -286,6 +309,7 @@ function stop(): void {
   source = null;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   updateMeters({ flex: 0, thumbs_up: 0, yawn: 0 }, null);
+  hud.reset();
   shownHint = null;
   hintHold.reset();
   for (const g of GESTURES) {
@@ -293,6 +317,9 @@ function stop(): void {
     meters[g].hint.closest("li")?.classList.remove("almost");
   }
   stage.style.aspectRatio = stageAspect(0, 0);
+  window.clearTimeout(emoteTimer);
+  window.clearTimeout(emoteLeaveTimer);
+  emoteBox.classList.remove("leaving", "pop");
   emoteBox.classList.add("hidden");
   setRunning(false, null);
   setStatus("Stopped.");
@@ -310,5 +337,10 @@ if (!navigator.mediaDevices?.getUserMedia) {
   startCameraBtn.disabled = true;
   setStatus("This browser has no camera API. Press “Play demo”.");
 }
+
+// The entrance animations run as soon as the DOM is parsed (this is a deferred module), so a
+// [data-reveal] block is never left invisible waiting on the load event. Under
+// prefers-reduced-motion: reduce this installs nothing at all.
+initReveals();
 
 window.addEventListener("load", () => initAnalytics());
